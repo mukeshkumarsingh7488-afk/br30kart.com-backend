@@ -88,7 +88,7 @@ mongoose
   .then(async () => {
     console.log("🔥 BR30Kart Database Connected!");
 
-    // ✅ माइग्रेशन कोड (फिक्स पाथ के साथ)
+    // ✅ PRO MIGRATION BLOCK
     try {
       const ordersToUpdate = await Order.find({
         $or: [
@@ -102,24 +102,32 @@ mongoose
         console.log(`🚀 Updating ${ordersToUpdate.length} old orders...`);
         for (let o of ordersToUpdate) {
           const amt = Number(o.amount) || 0;
-          o.platformCommission = (amt * 20) / 100;
-          o.sellerEarnings = amt - o.platformCommission;
-          o.commissionRate = 20;
-          await o.save();
+          const commission = (amt * 20) / 100;
+          const earnings = amt - commission;
+
+          // सीधा अपडेट ताकि 'productId' की कमी से एरर न आए
+          await Order.updateOne(
+            { _id: o._id },
+            {
+              $set: {
+                platformCommission: commission,
+                sellerEarnings: earnings,
+                commissionRate: 20,
+                payoutStatus: "Pending",
+              },
+            },
+            { runValidators: false },
+          );
         }
-        console.log("✅ Purana Data Update Ho Gaya!");
+        console.log("✅ SUCCESS: Purana data update ho gaya! (Bypassed)");
       } else {
-        console.log("ℹ️ No old orders to update.");
+        console.log("ℹ️ No old orders left to update.");
       }
     } catch (err) {
       console.error("❌ Migration Error:", err.message);
     }
   })
   .catch((err) => console.error("❌ DB Error:", err.message));
-
-app.get("/", (req, res) =>
-  res.send("🚀 BR30Kart API is Running with Socket.io!"),
-);
 
 /* ================== TEST ROUTE ================== */
 
