@@ -58,41 +58,39 @@ exports.postReview = async (req, res) => {
 
 exports.getTopReviews = async (req, res) => {
   try {
+    // 1. Total Count (बिना किसी फिल्टर के)
     const totalReviewCount = await Review.countDocuments();
 
     const reviews = await Review.aggregate([
       {
+        // 2. Sirf approved reviews lo
         $match: {
           $or: [{ status: "approved" }, { status: { $exists: false } }],
         },
       },
-      { $sort: { createdAt: -1 } },
       {
-        $group: {
-          _id: "$username",
-          latestReview: { $first: "$$ROOT" },
-        },
-      },
-      { $replaceRoot: { newRoot: "$latestReview" } },
-      {
-        // 🔥 userId को ObjectId में कन्वर्ट करें ताकि Lookup मैच हो सके
+        // 3. UserId ko ObjectId mein badlo (Lookup ke liye zaruri hai)
         $addFields: {
           userId: { $toObjectId: "$userId" },
         },
       },
       {
+        // 4. User details nikalo (Profile Pic ke liye)
         $lookup: {
-          from: "users", // पक्का करें कि DB में नाम 'users' ही है (lowercase)
+          from: "users",
           localField: "userId",
           foreignField: "_id",
           as: "userDetails",
         },
       },
       { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
-      { $sort: { createdAt: -1 } },
+      {
+        // 5. Sabse naye reviews sabse upar (Sorted by Date)
+        $sort: { createdAt: -1 },
+      },
+      // 🔥 GROUPING HATA DI HAI - TAAKI SAARE REVIEWS LOAD HON
     ]);
 
-    // ✅ डेटा भेजने से पहले चेक करें कि कहीं एम्प्टी तो नहीं आ रहा
     res.status(200).json({
       success: true,
       totalCount: totalReviewCount || 0,
@@ -100,7 +98,7 @@ exports.getTopReviews = async (req, res) => {
     });
   } catch (err) {
     console.error("Aggregation Error:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
