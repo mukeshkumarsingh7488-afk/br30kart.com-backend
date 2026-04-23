@@ -122,9 +122,12 @@ router.post("/claim-certificate", auth, async (req, res) => {
         course: courseName,
         certId: certId,
         downloadUrl: uploadRes.secure_url,
-        date: new Date(),
       },
-      { upsert: true, returnDocument: "after" },
+      {
+        upsert: true,
+        returnDocument: "after",
+        setDefaultsOnInsert: true,
+      },
     );
     console.log("✅ [STEP 8] Certificates Collection Synced!");
 
