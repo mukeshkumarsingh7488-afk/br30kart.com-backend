@@ -124,7 +124,7 @@ router.post("/claim-certificate", auth, async (req, res) => {
         downloadUrl: uploadRes.secure_url,
         date: new Date(),
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     );
     console.log("✅ [STEP 8] Certificates Collection Synced!");
 
