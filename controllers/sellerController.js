@@ -138,29 +138,34 @@ exports.getBestSellers = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Email required" });
 
-    // 1. ऑर्डर्स को ग्रुप करें, Count, Revenue और Earnings निकालें
+    // 1. एग्रीगेशन (Stat Boxes के लिए)
     const salesStats = await Order.aggregate([
-      { $match: { sellerEmail: email, status: "success" } }, // सिर्फ सफल ऑर्डर्स
+      { $match: { sellerEmail: email, status: "success" } },
       {
         $group: {
           _id: "$productName",
           count: { $sum: 1 },
-          totalRevenue: { $sum: { $toDouble: "$amount" } },
-          // 🔥 असली मुनाफा (80%) जो सेलर के पास गया
+          revenue: { $sum: { $toDouble: "$amount" } }, // 'revenue' नाम रख ताकि फ्रंटएंड से मैच हो
           totalEarnings: { $sum: { $toDouble: "$sellerEarnings" } },
         },
       },
-      { $sort: { count: -1 } }, // सबसे ज़्यादा बिकने वाला ऊपर
+      { $sort: { count: -1 } },
     ]);
 
-    // 2. सबसे कम बिकने वाला कोर्स (Worst Seller)
+    // 2. 🔥 टेबल के लिए डेटा (ये तू मिस कर रहा था)
+    const allOrders = await Order.find({
+      sellerEmail: email,
+      status: "success",
+    }).sort({ createdAt: -1 });
+
     const worstSeller =
       salesStats.length > 0 ? salesStats[salesStats.length - 1] : null;
 
     res.status(200).json({
       success: true,
-      topSellers: salesStats, // इसमें अब 'totalEarnings' भी है
+      topSellers: salesStats,
       worstSeller: worstSeller,
+      allData: allOrders, // 👈 अब फ्रंटएंड को टेबल के लिए डेटा मिलेगा
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
