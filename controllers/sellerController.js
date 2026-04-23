@@ -145,11 +145,13 @@ exports.getBestSellers = async (req, res) => {
         $group: {
           _id: "$productName",
           count: { $sum: 1 },
-          // 🔥 $trim और $replaceOne का उपयोग ताकि अगर "₹" या " " हो तो भी सही कैलकुलेशन हो
           revenue: {
             $sum: {
-              $toDouble: {
-                $trim: { input: { $ifNull: ["$amount", "0"] } },
+              $convert: {
+                input: "$amount",
+                to: "double",
+                onError: 0.0,
+                onNull: 0.0,
               },
             },
           },
