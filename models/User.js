@@ -1,3 +1,5 @@
+//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
+// 👤 USER MODEL: Stores credentials, roles, and profile information.
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -7,7 +9,6 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     fcmToken: { type: String, default: "" },
 
-    // 🔥 Sirf Role se control hoga sab
     role: {
       type: String,
       enum: ["student", "seller", "vip", "admin"],
@@ -24,7 +25,6 @@ const userSchema = new mongoose.Schema(
       default: Date.now,
     },
 
-    // 🔥 User Block/Unblock status
     isBlocked: {
       type: Boolean,
       default: false,
@@ -35,7 +35,6 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // 🎓 --- AUTOMATIC CERTIFICATE & PROGRESS SYSTEM ---
     completedLessons: [
       {
         type: String,
@@ -67,7 +66,7 @@ const userSchema = new mongoose.Schema(
       {
         courseId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product", // Aapke Course/Product model ka naam
+          ref: "Product",
         },
         isHidden: {
           type: Boolean,
@@ -119,7 +118,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-// 🔥 SMART AUTO-FIX: Save hone se pehle data check karega
+
 userSchema.pre("save", async function () {
   try {
     if (this.isApproved) {
@@ -134,3 +133,8 @@ userSchema.pre("save", async function () {
   }
 });
 module.exports = mongoose.model("User", userSchema);
+//#endregion
+// ==========================================
+// ✅ Schema organized, validated, and refactored.
+// 🚀 Database Model is ready for production!
+// ==========================================

@@ -1,5 +1,7 @@
-// controllers/sellerController.js
-const Order = require("../models/order"); // Apne Order model ka path sahi kar lena
+//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
+const Order = require("../models/order");
+
+// 1. 📈 GET SELLER ANALYTICS | LOGIC: FETCHING SALES PERFORMANCE & REVENUE METRICS
 exports.getSellerAnalytics = async (req, res) => {
   try {
     const { email, start, end } = req.query;
@@ -24,7 +26,6 @@ exports.getSellerAnalytics = async (req, res) => {
 
     const orders = await Order.find(query).sort({ createdAt: -1 });
 
-    // Summary Calculations
     let totalRevenue = 0;
     let sellerProfit = 0;
     let pendingAmount = 0;
@@ -33,11 +34,9 @@ exports.getSellerAnalytics = async (req, res) => {
     orders.forEach((order) => {
       totalRevenue += Number(order.amount || 0);
 
-      // ✅ DB से सीधा असली वैल्यू उठाओ (No 0.2/0.8 logic)
       adminFee += Number(order.platformCommission || 0);
       sellerProfit += Number(order.sellerEarnings || 0);
 
-      // ✅ Pending Payout का सटीक हिसाब (DB value)
       if (
         order.payoutStatus &&
         order.payoutStatus.toLowerCase() === "pending"
@@ -50,9 +49,9 @@ exports.getSellerAnalytics = async (req, res) => {
       success: true,
       summary: {
         totalRevenue: Math.round(totalRevenue),
-        sellerProfit: Math.round(sellerProfit), // असली कमाई
-        pendingAmount: Math.round(pendingAmount), // जो अभी मिलना बाकी है
-        adminFee: Math.round(adminFee), // आपका कमीशन
+        sellerProfit: Math.round(sellerProfit),
+        pendingAmount: Math.round(pendingAmount),
+        adminFee: Math.round(adminFee),
       },
       sales: orders,
     });
@@ -66,7 +65,7 @@ exports.getSellerAnalytics = async (req, res) => {
   }
 };
 
-// track sales record (Updated with DB Records)
+// 2. 📑 TRACK SALES RECORDS | LOGIC: AGGREGATING REAL-TIME TRANSACTION DATA FROM DB
 exports.getSellerSalesRecords = async (req, res) => {
   try {
     const { sellerEmail, search, from, to } = req.query;
@@ -85,13 +84,11 @@ exports.getSellerSalesRecords = async (req, res) => {
 
     const orders = await Order.find(query).sort({ createdAt: -1 });
 
-    // 1. Total Gross Revenue (कुल सेल)
     const totalRevenue = orders.reduce(
       (sum, order) => sum + (Number(order.amount) || 0),
       0,
     );
 
-    // 2. 🔥 असली Earnings & Commission (सीधा DB से)
     const totalEarnings = orders.reduce(
       (sum, order) => sum + (Number(order.sellerEarnings) || 0),
       0,
@@ -101,9 +98,7 @@ exports.getSellerSalesRecords = async (req, res) => {
       0,
     );
 
-    // 3. Pending Payout (जो अभी तक 'Pending' है)
     const pendingAmount = orders.reduce((sum, order) => {
-      // 'Pending' या 'pending' दोनों चेक करें
       if (
         order.payoutStatus &&
         order.payoutStatus.toLowerCase() === "pending"
@@ -119,9 +114,9 @@ exports.getSellerSalesRecords = async (req, res) => {
         orders,
         totals: {
           revenue: Math.round(totalRevenue),
-          earnings: Math.round(totalEarnings), // 👈 80% logic removed
-          commission: Math.round(totalCommission), // 👈 20% logic removed
-          pending: Math.round(pendingAmount), // 4th box (Actual Pending)
+          earnings: Math.round(totalEarnings),
+          commission: Math.round(totalCommission),
+          pending: Math.round(pendingAmount),
         },
       },
     });
@@ -130,6 +125,7 @@ exports.getSellerSalesRecords = async (req, res) => {
   }
 };
 
+// 3. 🎖️ GET BEST SELLER BADGE | LOGIC: CALCULATING PERFORMANCE THRESHOLDS FOR RECOGNITION
 exports.getBestSellers = async (req, res) => {
   try {
     const { email } = req.query;
@@ -142,14 +138,13 @@ exports.getBestSellers = async (req, res) => {
 
     console.log(`📊 [FETCHING]: Best Seller Data for: ${email}`);
 
-    // 1. एग्रीगेशन (Stat Boxes के लिए - Safe Conversion)
     const salesStats = await Order.aggregate([
       { $match: { sellerEmail: email, status: "success" } },
       {
         $group: {
           _id: "$productName",
           count: { $sum: 1 },
-          // $convert सबसे सेफ है क्योंकि ये String और Number दोनों को झेल लेता है
+
           revenue: {
             $sum: {
               $convert: {
@@ -175,7 +170,6 @@ exports.getBestSellers = async (req, res) => {
       { $sort: { revenue: -1 } },
     ]);
 
-    // 2. टेबल के लिए सभी ऑर्डर्स (Latest First)
     const allOrders = await Order.find({
       sellerEmail: email,
       status: "success",
@@ -185,7 +179,6 @@ exports.getBestSellers = async (req, res) => {
       `✅ [SUCCESS]: Stats found: ${salesStats.length}, Total Orders: ${allOrders.length}`,
     );
 
-    // 3. सबसे कम बिकने वाला
     const worstSeller =
       salesStats.length > 1 ? salesStats[salesStats.length - 1] : null;
 
@@ -200,3 +193,8 @@ exports.getBestSellers = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+//#endregion
+// ==========================================
+// ✅ Code successfully organized and refactored.
+// 🚀 Ready for Production!
+// ==========================================

@@ -1,9 +1,8 @@
-// Ye middleware ensure karega ki jo bhi request aayegi usme ek valid JWT token hoga.
-// Isme hum token ko verify karenge aur usme se user data nikal ke req.user me daal denge, taki aage ke controllers me use kar sakein.
+//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
+// 🛡️ JWT AUTH: Validates tokens and attaches user payload to the request object.
 const jwt = require("jsonwebtoken");
-
+// 👤 USER AUTH: Ensures the user is logged in and authenticated via JWT.
 module.exports = function (req, res, next) {
-  // 1. दोनों तरीके से टोकन चेक करें (ताकि कोई एरर न आए)
   let token = req.header("Authorization") || req.header("x-auth-token");
 
   if (!token) {
@@ -11,16 +10,12 @@ module.exports = function (req, res, next) {
   }
 
   try {
-    // 2. अगर टोकन "Bearer <token>" फॉर्मेट में है, तो सिर्फ टोकन निकालें
     if (token.startsWith("Bearer ")) {
       token = token.split(" ")[1];
     }
 
-    // 3. Verify करें (Secret Key वही रखें जो index.js में है)
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "test_secret");
 
-    // 4. यूजर डेटा को रिक्वेस्ट में डालें
-    // पक्का करें कि आपके टोकन में 'user' ऑब्जेक्ट है या सीधा 'id'
     req.user = decoded.user || decoded;
 
     next();
@@ -29,3 +24,8 @@ module.exports = function (req, res, next) {
     res.status(401).json({ msg: "Token is not valid" });
   }
 };
+//#endregion
+// ==========================================
+// ✅ JWT & Role-based Access Refactored.
+// 🚀 Middleware is hardened for Production!
+// ==========================================

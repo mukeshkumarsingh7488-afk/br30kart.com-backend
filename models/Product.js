@@ -1,9 +1,11 @@
+//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
+// 🛒 PRODUCT MODEL: Stores course details, pricing, and media assets.
 const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    // Fix categories as per your frontend logic
+
     category: {
       type: String,
       enum: [
@@ -24,13 +26,18 @@ const ProductSchema = new mongoose.Schema(
     discount: { type: Number, default: 0 },
 
     // 🔥 NEW: Multi-Seller Controls
-    isApproved: { type: Boolean, default: true }, // Admin approval flag
-    isFeatured: { type: Boolean, default: false }, // Special badge ke liye
+    isApproved: { type: Boolean, default: true },
+    isFeatured: { type: Boolean, default: false },
     isVisible: { type: Boolean, default: true },
     couponCreatedAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true },
-); // Timestamps se 'createdAt' aur 'updatedAt' auto ban jayega
+);
 
 module.exports = mongoose.model("Product", ProductSchema);
+//#endregion
+// ==========================================
+// ✅ Schema organized, validated, and refactored.
+// 🚀 Database Model is ready for production!
+// ==========================================

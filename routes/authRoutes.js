@@ -1,3 +1,5 @@
+//#region ━━━━━ 🚀 WELCOME DEVELOPER | AUTH SYSTEM INITIALIZED ━━━━━
+
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
@@ -8,14 +10,18 @@ const generateProfessionalCert = require("../utils/generateProfessionalCert");
 const auth = require("../middleware/auth");
 const cloudinary = require("../config/cloudinary");
 const { sendEmail, vipCertTemplate } = require("../utils/emailTemplate");
-
 const Certificate = require("../models/certificate");
 
+// 🔐 --- CORE AUTHENTICATION ROUTES ---
 router.post("/register", authController.register);
 router.post("/verify-otp", authController.verifyOTP);
 router.post("/login", authController.login);
+
+// 🛡️ --- PASSWORD RECOVERY SYSTEM ---
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/reset-password", authController.resetPassword);
+
+// 👤 --- USER PROFILE MANAGEMENT ---
 router.get("/profile", auth, authController.getProfile);
 router.put(
   "/update-profile",
@@ -24,15 +30,15 @@ router.put(
   authController.updateProfile,
 );
 
-// --- 🔥 Naye Seller Routes (Paths change kar diye taaki takraav na ho) ---
+// 🏪 --- 🔥 SELLER ONBOARDING SYSTEM (2026 REFACTORED) ---
 
-// 1. Send OTP (Ab error nahi aayega kyunki authController. laga diya hai)
+// 1. 📩 SELLER OTP DISPATCHER
 router.post("/seller/send-otp", authController.sendOTP);
 
-// 2. Verify OTP (Ise 'seller-verify' kar diya taaki upar wale se alag rahe)
+// 2. 🔑 SELLER IDENTITY VERIFICATION
 router.post("/seller/verify-otp", authController.verifyOTP);
 
-// 3. Final Seller Register
+// 3. 🚀 FINAL SELLER REGISTRATION (KYC UPLOAD)
 router.post(
   "/seller/register",
   sellerUpload.fields([
@@ -41,7 +47,7 @@ router.post(
     { name: "bankDoc", maxCount: 1 },
   ]),
   authController.sellerRegister,
-); // Yahan bhi authController. lagana zaroori tha
+);
 
 // 🏆 UPGRADED ROUTE: Claim Certificate + Automatic Elite Mail
 router.post("/claim-certificate", auth, async (req, res) => {
@@ -164,7 +170,6 @@ router.post("/claim-certificate", auth, async (req, res) => {
   }
 });
 
-// niche ye naya route add karo
 // Upgraded Verification Route v2.5 (Atlas + Cloudinary Sync)
 router.get("/verify-certificate/:id", async (req, res) => {
   try {
@@ -199,3 +204,8 @@ router.get("/verify-certificate/:id", async (req, res) => {
 });
 
 module.exports = router;
+//#endregion
+// ==========================================
+// ✅ AUTH & USER ROUTES ORGANIZED.
+// 🚀 Ready for Production!
+// ==========================================

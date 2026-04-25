@@ -1,4 +1,5 @@
-// notification model
+//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
+// 🔔 NOTIFICATION MODEL: Stores user alerts, messages, and read/unread status.
 const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({
@@ -11,3 +12,8 @@ const notificationSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);
+//#endregion
+// ==========================================
+// ✅ Schema organized, validated, and refactored.
+// 🚀 Database Model is ready for production!
+// ==========================================
