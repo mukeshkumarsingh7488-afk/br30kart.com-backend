@@ -95,21 +95,17 @@ router.get("/", async (req, res) => {
     const updatedProducts = products.map((product) => {
       let p = product.toObject();
 
-      // 1. अगर प्रोडक्ट में डिस्काउंट है (Mega Sale)
       if (p.discount && p.discount > 0) {
-        // समय निकालो (couponCreatedAt को प्राथमिकता दें)
         const startTime = new Date(p.couponCreatedAt || p.createdAt).getTime();
+        const expiryTime = startTime + 5 * 60 * 1000;
+        //const expiryTime = startTime + 7 * 24 * 60 * 60 * 1000;
 
-        // टेस्ट के लिए इसे 7 दिन की वैलिडिटी दे देते हैं
-        const expiryTime = startTime + 7 * 24 * 60 * 60 * 1000;
-
-        // टर्मिनल में चेक करने के लिए (Debug)
         console.log(
           `Product: ${p.title}, Expiry: ${new Date(expiryTime)}, Expired: ${now > expiryTime}`,
         );
 
         if (now > expiryTime) {
-          p.discount = 0; // अगर सच में पुराना है तो ही 0 होगा
+          p.discount = 0;
         }
       }
 
@@ -141,7 +137,7 @@ router.put("/update-discount/:id", async (req, res) => {
       req.params.id,
       {
         discount: discount,
-        couponCreatedAt: new Date(), // Yahan se 7 din ka timer shuru hoga
+        couponCreatedAt: new Date(),
       },
       { new: true },
     );
@@ -162,7 +158,6 @@ router.delete("/cancel-coupon", async (req, res) => {
 });
 
 // 6. 🏪 SELLER ONBOARDING | @route: POST /api/auth/seller/register (With Duplicate Check)
-
 router.post("/register-seller", async (req, res) => {
   try {
     const { email } = req.body;
@@ -189,13 +184,11 @@ router.post("/register-seller", async (req, res) => {
 // 7. 👤 FETCH SELLER PROFILE | @route: GET /api/auth/profile
 router.post("/get-seller", async (req, res) => {
   try {
-    const { email } = req.body; // फ्रंटएंड से ईमेल आएगा
+    const { email } = req.body;
 
-    // 'Seller' आपके मॉडल का नाम है, और 'email' DB की फील्ड है
     const seller = await Seller.findOne({ email: email });
 
     if (seller) {
-      // अगर ईमेल मिल गया तो पूरा डेटा (नाम, बायो, सोशल लिंक) भेज दो
       return res.status(200).json({ success: true, data: seller });
     } else {
       return res.status(404).json({
