@@ -133,18 +133,23 @@ router.put("/update-discount/:id", async (req, res) => {
   try {
     const { discount } = req.body;
 
-    const updateData = {
-      discount: discount,
-      couponCreatedAt: new Date(),
-      discountSource: discount > 0 ? "individual" : null,
-    };
+    // 🔥 असली बदलाव यहाँ है:
+    // अगर डिस्काउंट 0 से बड़ा है तो "individual" लिखो, वरना null कर दो
+    const discountTag = discount > 0 ? "individual" : null;
 
-    const updated = await Product.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-    });
-    res.json({ message: "Update Successful!", data: updated });
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        discount: discount,
+        discountSource: discountTag, // ✅ अब यह सही से अपडेट होगा
+        couponCreatedAt: new Date(),
+      },
+      { new: true },
+    );
+
+    res.json({ message: "Discount Updated!", data: updated });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Update error" });
   }
 });
 
