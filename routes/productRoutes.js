@@ -90,7 +90,25 @@ router.post("/upload", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
-    res.json(products);
+    const now = new Date().getTime();
+
+    // 🔥 डेटा भेजने से पहले डिस्काउंट चेक करो
+    const updatedProducts = products.map((product) => {
+      let p = product.toObject(); // Plain JS object में बदलें ताकि बदलाव कर सकें
+
+      // 5 MINUTE TEST LOGIC
+      // अगर 'couponCreatedAt' नहीं है, तो 'createdAt' का इस्तेमाल करेगा
+      const startTime = new Date(p.couponCreatedAt || p.createdAt).getTime();
+      const expiryTime = startTime + 5 * 60 * 1000; // 5 मिनट जोड़ रहे हैं
+
+      if (now > expiryTime) {
+        p.discount = 0; // टाइम खत्म, तो डिस्काउंट भी खत्म
+      }
+
+      return p;
+    });
+
+    res.json(updatedProducts); // अब साफ़-सुथरा डेटा भेजो
   } catch (err) {
     res.status(500).json({ error: "Data fetch nahi ho raha!" });
   }
