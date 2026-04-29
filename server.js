@@ -11,6 +11,7 @@ const path = require("path");
 const http = require("http");
 const { Server } = require("socket.io");
 const Review = require("./models/Review");
+const startDiscountCleanup = require("./utils/cronJobs");
 
 /* ================== ROUTES ================== */
 const adminRoutes = require("./routes/adminRoutes");
@@ -95,7 +96,11 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("🔥 BR30Kart Database Connected!");
+
+    startDiscountCleanup();
+    console.log("🕒 Discount Cleanup Task Started...");
   })
+
   .catch((err) => {
     console.error("❌ DB Error:", err.message);
   });
