@@ -1,6 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-
-// 📜 UPGRADED CERTIFICATE MODEL | LOGIC: ATLAS DB SYNC & CLOUDINARY MEDIA INTEGRATION
 const mongoose = require("mongoose");
 
 const certSchema = new mongoose.Schema(
@@ -31,8 +28,3 @@ const certSchema = new mongoose.Schema(
   { timestamps: true },
 );
 module.exports = mongoose.model("Certificate", certSchema);
-//#endregion
-// ==========================================
-// ✅ Schema organized, validated, and refactored.
-// 🚀 Database Model is ready for production!
-// ==========================================

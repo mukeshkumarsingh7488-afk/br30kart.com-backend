@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | AUTH SYSTEM INITIALIZED ━━━━━
-
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
@@ -204,8 +202,3 @@ router.get("/verify-certificate/:id", async (req, res) => {
 });
 
 module.exports = router;
-//#endregion
-// ==========================================
-// ✅ AUTH & USER ROUTES ORGANIZED.
-// 🚀 Ready for Production!
-// ==========================================

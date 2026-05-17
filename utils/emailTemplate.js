@@ -1,20 +1,17 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const nodemailer = require("nodemailer");
 /* ---------------- SEND EMAIL CORE (GMAIL SMTP) ---------------- */
 const sendEmail = async (options) => {
   try {
-    // 1. Transporter banayein (Gmail settings)
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER, // Aapka Gmail ID
-        pass: process.env.EMAIL_PASS, // Aapka "App Password" (Normal password nahi)
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     console.log(`📧 Sending email TO: ${options.to || options.email}`);
 
-    // 2. Mail options set karein
     const mailOptions = {
       from: `"BR30 Trader" <${process.env.EMAIL_USER}>`,
       to: options.to || options.email,
@@ -22,7 +19,6 @@ const sendEmail = async (options) => {
       html: options.html || options.message,
     };
 
-    // 3. Email send karein
     const info = await transporter.sendMail(mailOptions);
 
     console.log("✅ Email Sent Successfully via Nodemailer:", info.messageId);
@@ -1530,8 +1526,3 @@ module.exports = {
   sellerAlertTemplate,
   sellerAlertTemplate2,
 };
-//#endregion
-// ==========================================================================
-// ✅ UTILS STATUS: EMAIL TEMPLATES ORGANIZED & VALIDATED.
-// 🚀 DISPATCH SYSTEM: READY FOR PRODUCTION DELIVERY!
-// ==========================================================================

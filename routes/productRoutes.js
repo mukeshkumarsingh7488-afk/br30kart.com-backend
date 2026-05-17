@@ -1,4 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | BR30KART SYSTEM INITIALIZED ━━━━━
 const express = require("express");
 const router = express.Router();
 const Seller = require("../models/Seller");
@@ -133,18 +132,16 @@ router.put("/update-discount/:id", async (req, res) => {
   try {
     const { discount } = req.body;
 
-    // 🔥 असली बदलाव यहाँ है:
-    // अगर डिस्काउंट 0 से बड़ा है तो "individual" लिखो, वरना null कर दो
     const discountTag = discount > 0 ? "individual" : null;
 
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
         discount: discount,
-        discountSource: discountTag, // ✅ अब यह सही से अपडेट होगा
+        discountSource: discountTag,
         couponCreatedAt: new Date(),
       },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     res.json({ message: "Discount Updated!", data: updated });
@@ -336,9 +333,3 @@ router.delete("/:id", auth, productController.deleteProduct);
 router.put("/toggle-visibility/:id", auth, productController.toggleVisibility);
 // bell notification routes
 module.exports = router;
-//#endregion
-// ==========================================================================
-// ✅ SYSTEM STATUS: CODE SUCCESSFULLY ORGANIZED, REFACTORED & TESTED.
-// 🛡️ SECURITY: JWT & ROLE-BASED ACCESS CONTROL (RBAC) ACTIVE.
-// 🚀 DEPLOYMENT: READY FOR PRODUCTION ENVIRONMENT.
-// ==========================================================================

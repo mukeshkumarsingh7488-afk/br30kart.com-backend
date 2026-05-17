@@ -1,7 +1,5 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-// 🛡️ JWT AUTH: Validates tokens and attaches user payload to the request object.
 const jwt = require("jsonwebtoken");
-// 👤 USER AUTH: Ensures the user is logged in and authenticated via JWT.
+
 module.exports = function (req, res, next) {
   let token = req.header("Authorization") || req.header("x-auth-token");
 
@@ -24,8 +22,3 @@ module.exports = function (req, res, next) {
     res.status(401).json({ msg: "Token is not valid" });
   }
 };
-//#endregion
-// ==========================================
-// ✅ JWT & Role-based Access Refactored.
-// 🚀 Middleware is hardened for Production!
-// ==========================================

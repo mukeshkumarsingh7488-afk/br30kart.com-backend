@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | ADMIN SYSTEM INITIALIZED ━━━━━
-
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
@@ -116,8 +114,3 @@ router.put(
 router.delete("/delete-seller/:email", auth, adminController.deleteSeller);
 
 module.exports = router;
-//#endregion
-// ==========================================
-// ✅ ADMIN ROUTES ORGANIZED & SECURED.
-// 🚀 Ready for Production!
-// ==========================================

@@ -1,24 +1,19 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const User = require("../models/User");
 const Product = require("../models/Product");
 const Order = require("../models/order");
 const Coupon = require("../models/coupon");
-//  📩 EMAIL TEMPLATE EXPORT | LOGIC: MANAGING SYSTEM-WIDE EMAIL LAYOUTS
 const {
   getSupportFailureTemplate,
   getUserFailureTemplate,
 } = require("../utils/emailTemplate");
 
-//#region  💳 RAZORPAY CONFIGURATION | LOGIC: SECURING API CREDENTIALS VIA ENVIRONMENT VARIABLES
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-//#endregion
 
-// 1. 🛒 CREATE PAYMENT ORDER | LOGIC: INITIATING TRANSACTION FROM FRONTEND REQUEST
 exports.createOrder = async (req, res) => {
   try {
     const { productId, couponCode, buyerEmail } = req.body;
@@ -58,7 +53,7 @@ exports.createOrder = async (req, res) => {
     }
 
     const options = {
-      amount: Math.round(finalPrice * 100), // Amount in Paise
+      amount: Math.round(finalPrice * 100),
       currency: "INR",
       receipt: `rcpt_${Date.now()}_${productId.substring(0, 5)}`,
       notes: {
@@ -89,7 +84,6 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// 2. 🛡️ VERIFY PAYMENT | LOGIC: AUTHENTICATING TRANSACTION FROM FRONTEND RESPONSE
 exports.verifyPayment = async (req, res) => {
   try {
     const {
@@ -188,7 +182,6 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
-// 3. ⚠️ PAYMENT FAILURE ALERT | LOGIC: DISPATCHING NOTIFICATIONS TO USER & SUPPORT TEAM
 exports.handlePaymentFailure = async (req, res) => {
   try {
     const { courseId, reason } = req.body;
@@ -234,8 +227,3 @@ exports.handlePaymentFailure = async (req, res) => {
     });
   }
 };
-//#endregion
-// ==========================================
-// ✅ Code successfully organized and refactored.
-// 🚀 Ready for Production!
-// ==========================================

@@ -1,11 +1,8 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const Review = require("../models/Review");
 const User = require("../models/User");
 const mongoose = require("mongoose");
-//  📩 EMAIL TEMPLATE EXPORT | LOGIC: MANAGING SYSTEM-WIDE EMAIL LAYOUTS
 const { generateSmartReply } = require("../utils/reviewReply");
 
-// 1. 📝 POST REVIEW | LOGIC: SUBMITTING USER FEEDBACK & RATINGS (UI DISPLAY)
 exports.postReview = async (req, res) => {
   try {
     const { rating, comment, userId } = req.body;
@@ -44,7 +41,6 @@ exports.postReview = async (req, res) => {
   }
 };
 
-// 2. 👤 FETCH MY REVIEWS | LOGIC: RETRIEVING ALL FEEDBACK SUBMITTED BY THE USER
 exports.getTopReviews = async (req, res) => {
   try {
     const totalReviewCount = await Review.countDocuments();
@@ -85,7 +81,6 @@ exports.getTopReviews = async (req, res) => {
   }
 };
 
-// 3. 🛡️ ADMIN REVIEW MANAGEMENT | LOGIC: MODERATING & CURATING USER FEEDBACK
 exports.getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
@@ -97,7 +92,6 @@ exports.getAllReviews = async (req, res) => {
   }
 };
 
-// 4. 💬 REVIEW INTERACTION | LOGIC: ADMIN REPLIES & REVIEW STATUS UPDATES
 exports.updateReview = async (req, res) => {
   try {
     const { id } = req.params;
@@ -119,7 +113,6 @@ exports.updateReview = async (req, res) => {
   }
 };
 
-// 5. 🗑️ DELETE REVIEW | LOGIC: PERMANENT REMOVAL OF FEEDBACK FROM SYSTEM
 exports.deleteReview = async (req, res) => {
   try {
     const { id } = req.params;
@@ -135,7 +128,6 @@ exports.deleteReview = async (req, res) => {
   }
 };
 
-// 6. 🌓 TOGGLE REVIEW VISIBILITY | LOGIC: HIDING OR SHOWING REVIEWS ON THE FRONTEND
 exports.toggleReviewStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -157,7 +149,6 @@ exports.toggleReviewStatus = async (req, res) => {
   }
 };
 
-// 7. 🗄️ DATABASE SYNC | LOGIC: EXECUTING REAL-TIME DATA PERSISTENCE & UPDATES
 async function saveReply(reviewId, message) {
   try {
     await Review.findOneAndUpdate(
@@ -174,7 +165,6 @@ async function saveReply(reviewId, message) {
   }
 }
 
-// 8. ⚡ AUTO-EXECUTE MODULE | LOGIC: STANDALONE API HANDLER & REUSABLE UTILITY
 exports.handleAutoReply = async (req, res) => {
   try {
     const reviews = req.body.reviews;
@@ -200,8 +190,3 @@ exports.handleAutoReply = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-//#endregion
-// ==========================================
-// ✅ Code successfully organized and refactored.
-// 🚀 Ready for Production!
-// ==========================================

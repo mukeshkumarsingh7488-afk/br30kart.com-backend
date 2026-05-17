@@ -1,10 +1,8 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const User = require("../models/User");
 const Order = require("../models/order");
 const nodemailer = require("nodemailer");
 const Product = require("../models/Product");
 require("dotenv").config();
-// 📩 EMAIL TEMPLATE EXPORT | LOGIC: CENTRALIZED MAILING SYSTEM
 const {
   sendEmail,
   payoutTemplate,
@@ -15,7 +13,6 @@ const {
   sellerAlertTemplate2,
 } = require("../utils/emailTemplate");
 
-// 1. 📊 GET ALL DASHBOARD DATA | LOGIC: FETCHING STATS & ANALYTICS
 exports.getAllSellersDocs = async (req, res) => {
   try {
     const allUsers = await User.find({});
@@ -47,7 +44,6 @@ exports.getAllSellersDocs = async (req, res) => {
   }
 };
 
-// 2. ✅ APPROVE SELLER REQUEST | LOGIC: STATUS UPDATE & PERMISSION GRANTING
 exports.approveSeller = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +74,6 @@ exports.approveSeller = async (req, res) => {
   }
 };
 
-// 3. 🚫 TOGGLE BLOCK STATUS | LOGIC: USER ACCESS SUSPENSION & ACTIVATION
 exports.toggleUserBlock = async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,7 +106,6 @@ exports.toggleUserBlock = async (req, res) => {
   }
 };
 
-// 4. 🗑️ DELETE USER ACCOUNT | LOGIC: PERMANENT DATA REMOVAL & CLEANUP
 exports.deleteUserAccount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -145,7 +139,6 @@ exports.deleteUserAccount = async (req, res) => {
   }
 };
 
-// 5. ⭐ TOGGLE VIP STATUS | LOGIC: PREMIUM MEMBERSHIP ACTIVATION & REVOCATION
 exports.toggleVIPStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -182,7 +175,6 @@ exports.toggleVIPStatus = async (req, res) => {
   }
 };
 
-// 6. 🏆 GET ALL VIP USERS | LOGIC: FETCHING PREMIUM MEMBERSHIP LIST
 exports.getVIPUsers = async (req, res) => {
   try {
     const vips = await User.find({ role: "vip" });
@@ -199,7 +191,7 @@ exports.getVIPUsers = async (req, res) => {
     });
   }
 };
-// 7. 🔄 SELLER APPROVAL TOGGLE | LOGIC: APPROVE OR REVOKE SELLER RIGHTS
+
 exports.toggleSellerApproval = async (req, res) => {
   try {
     const { id } = req.params;
@@ -230,7 +222,6 @@ exports.toggleSellerApproval = async (req, res) => {
   }
 };
 
-// 8. 📈 CALCULATE SALES & PROFIT | LOGIC: AGGREGATING LIFETIME REVENUE & NET MARGINS
 exports.getFinancialStats = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -289,7 +280,6 @@ exports.getFinancialStats = async (req, res) => {
   }
 };
 
-// 9. 💸 FETCH PAYOUT RECORDS | LOGIC: RETRIEVING UPDATED DATABASE TRANSACTIONS
 exports.getFridayPayouts = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -388,7 +378,6 @@ exports.getFridayPayouts = async (req, res) => {
   }
 };
 
-// 10. 💳 PROCESS PAYOUT (PAY NOW) | LOGIC: MARKING PAYOUT STATUS AS 'COMPLETED'
 exports.updatePayoutStatus = async (req, res) => {
   try {
     const { email } = req.body;
@@ -478,7 +467,6 @@ exports.updatePayoutStatus = async (req, res) => {
   }
 };
 
-// 11. 📧 SEND EMAIL DISPATCHER | LOGIC: AUTOMATED SYSTEM NOTIFICATIONS
 const sendPayoutEmail = async (sellerData) => {
   try {
     const data = Array.isArray(sellerData) ? sellerData[0] : sellerData;
@@ -534,7 +522,6 @@ const sendPayoutEmail = async (sellerData) => {
   }
 };
 
-// 12. 🏪 GET ALL SELLERS | LOGIC: RETRIEVING REGISTERED SELLER DIRECTORY
 exports.getAllData = async (req, res) => {
   try {
     const studentsAndVips = await User.find({
@@ -569,7 +556,6 @@ exports.getAllData = async (req, res) => {
   }
 };
 
-// 13. ✅ VERIFY SELLER & NOTIFY | LOGIC: TOGGLE VERIFICATION & SUCCESS EMAIL DISPATCH
 exports.toggleVerification = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -643,7 +629,6 @@ exports.toggleVerification = async (req, res) => {
   }
 };
 
-// 14. ❌ REJECT REQUEST & NOTIFY | LOGIC: STATUS UPDATE & REJECTION EMAIL DISPATCH
 exports.rejectSellerDocs = async (req, res) => {
   try {
     const { userId, email, reason } = req.body;
@@ -673,7 +658,6 @@ exports.rejectSellerDocs = async (req, res) => {
   }
 };
 
-// 15. 🛒 GET ALL PRODUCTS | LOGIC: RETRIEVING FULL INVENTORY & CATALOG DATA
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -683,7 +667,6 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-// 16. ⚡ CORE APPROVAL CONTROLLER | LOGIC: CENTRALIZED DECISION ENGINE FOR APPROVE/REJECT
 exports.approveProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -703,7 +686,6 @@ exports.approveProduct = async (req, res) => {
   }
 };
 
-// 17. 👁️ TOGGLE VISIBILITY | LOGIC: HIDE OR SHOW CONTENT IN REAL-TIME (toggleVisibility)
 exports.toggleVisibility = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -726,7 +708,6 @@ exports.toggleVisibility = async (req, res) => {
   }
 };
 
-// 18. 🎫 RESET/DELETE COUPON | LOGIC: INVALIDATING DISCOUNTS & SETTING VALUE TO 0
 exports.resetCourseDiscount = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
@@ -746,7 +727,6 @@ exports.resetCourseDiscount = async (req, res) => {
   }
 };
 
-// 19. 🗑️ DELETE COURSE | LOGIC: PERMANENT REMOVAL OF COURSE CONTENT & ASSETS
 exports.deleteCourse = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
@@ -756,7 +736,6 @@ exports.deleteCourse = async (req, res) => {
   }
 };
 
-// 20. 📦 GET ALL ORDERS | LOGIC: MASTER ADMIN GLOBAL ORDER OVERVIEW & TRACKING
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -766,7 +745,6 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// 21. 🔍 GET SINGLE ORDER DETAILS | LOGIC: RETRIEVING SPECIFIC ORDER METADATA & STATUS
 exports.getOrderDetail = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -784,7 +762,6 @@ exports.getOrderDetail = async (req, res) => {
   }
 };
 
-// 22. ⏳ FETCH PENDING SELLER REQUESTS | LOGIC: RETRIEVING AWAITING VERIFICATIONS
 exports.getPendingSellers = async (req, res) => {
   try {
     const pendingSellers = await User.find({
@@ -805,7 +782,6 @@ exports.getPendingSellers = async (req, res) => {
   }
 };
 
-// 23. 🔍 GET SELLER DETAILS | LOGIC: RETRIEVING FULL APPLICATION DATA FOR REVIEW
 exports.getSellerDetails = async (req, res) => {
   try {
     const seller = await User.findById(req.params.id).select(
@@ -817,7 +793,6 @@ exports.getSellerDetails = async (req, res) => {
   }
 };
 
-// 24. ❌ REJECT SELLER REQUEST | LOGIC: DISAPPROVAL & APPLICANT NOTIFICATION
 exports.rejectSeller = async (req, res) => {
   try {
     const { id } = req.params;
@@ -858,7 +833,6 @@ exports.rejectSeller = async (req, res) => {
   }
 };
 
-// 25. ✅ APPROVE SELLER REQUEST | LOGIC: FINAL VERIFICATION & ROLE UPGRADE
 exports.approveSeller = async (req, res) => {
   try {
     const { id } = req.params;
@@ -894,7 +868,6 @@ exports.approveSeller = async (req, res) => {
   }
 };
 
-// 26. 🏪 GET SELLERS WITH COURSE STATS | LOGIC: FETCHING SELLER DIRECTORY & AGGREGATED COURSE COUNTS
 exports.getSellerTracker = async (req, res) => {
   try {
     const sellers = await User.aggregate([
@@ -940,7 +913,6 @@ exports.getSellerTracker = async (req, res) => {
   }
 };
 
-// 27. 🔔 SEND SELLER ALERT EMAIL | LOGIC: DISPATCHING CRITICAL SYSTEM NOTIFICATIONS
 exports.sendSellerAlert = async (req, res) => {
   try {
     const { email, name, message } = req.body;
@@ -959,7 +931,6 @@ exports.sendSellerAlert = async (req, res) => {
   }
 };
 
-// 28. 🚫 TOGGLE SELLER BLOCK STATUS | LOGIC: SUSPENDING OR RESTORING SELLER ACCESS
 exports.toggleBlockSeller = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -979,7 +950,6 @@ exports.toggleBlockSeller = async (req, res) => {
   }
 };
 
-// 29. 🗑️ DELETE USER ACCOUNT | LOGIC: PERMANENT REMOVAL OF USER DATA & CREDENTIALS
 exports.deleteSeller = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
@@ -989,7 +959,6 @@ exports.deleteSeller = async (req, res) => {
   }
 };
 
-// 30. ⭐ TOGGLE FEATURED STATUS | LOGIC: PROMOTING COURSES TO 'BEST SELLER' CATEGORY
 exports.toggleFeatured = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -1013,7 +982,6 @@ exports.toggleFeatured = async (req, res) => {
   }
 };
 
-// 31. 📦 BULK ACTIONS CONTROLLER | LOGIC: BATCH PROCESSING FOR MULTIPLE COURSE UPDATES
 exports.bulkUpdateCourses = async (req, res) => {
   try {
     const { ids, action } = req.body;
@@ -1061,7 +1029,6 @@ exports.bulkUpdateCourses = async (req, res) => {
   }
 };
 
-// 31. 📩 SELLER ALERT DISPATCHER | LOGIC: SENDING NOTIFICATIONS FROM COURSE MANAGEMENT PANEL
 exports.sendSellerActionMail = async (req, res) => {
   try {
     const { sellerEmail, sellerName, reason, message, courseId, courseTitle } =
@@ -1092,7 +1059,6 @@ exports.sendSellerActionMail = async (req, res) => {
   }
 };
 
-// 33. 👥 BULK USER UPDATE | LOGIC: BATCH PROCESSING FOR MULTIPLE USER ATTRIBUTES
 exports.bulkUpdateUsers = async (req, res) => {
   try {
     const { ids, action } = req.body;
@@ -1105,10 +1071,7 @@ exports.bulkUpdateUsers = async (req, res) => {
     }
 
     const queryIds = { _id: { $in: ids } };
-
-    // 2. Role-Based Database Operations
     switch (action) {
-      // --- 🏪 SELLER CONTROL ---
       case "approve_seller":
         await User.updateMany(
           { ...queryIds, role: "seller" },
@@ -1137,12 +1100,10 @@ exports.bulkUpdateUsers = async (req, res) => {
         await User.deleteMany({ ...queryIds, role: "seller" });
         break;
 
-      // --- 💎 VIP CONTROL (Role Switch, Block, Delete) ---
       case "make_vip":
         await User.updateMany(queryIds, { $set: { role: "vip", isVip: true } });
         break;
       case "remove_vip":
-        // VIP hata kar wapas Student role set kar rahe hain
         await User.updateMany(
           { ...queryIds, role: "vip" },
           { $set: { role: "student", isVip: false } },
@@ -1163,8 +1124,6 @@ exports.bulkUpdateUsers = async (req, res) => {
       case "delete_vip":
         await User.deleteMany({ ...queryIds, role: "vip" });
         break;
-
-      // --- 🎓 STUDENT CONTROL (Block, Delete, Certificate) ---
       case "block_student":
         await User.updateMany(
           { ...queryIds, role: "student" },
@@ -1185,7 +1144,6 @@ exports.bulkUpdateUsers = async (req, res) => {
           $set: { isCertified: false, "certificateData.status": "Rejected" },
         });
         break;
-
       // --- 💀 DANGER ZONE ---
       case "delete_all":
         await User.deleteMany(queryIds);
@@ -1215,7 +1173,6 @@ exports.bulkUpdateUsers = async (req, res) => {
   }
 };
 
-// 34. 👁️ HIDE ENROLLED COURSE | LOGIC: TOGGLING VISIBILITY ON STUDENT ACTIVE PANEL
 exports.getStudentTrackerData = async (req, res) => {
   try {
     console.log("📡 Fetching students for tracker...");
@@ -1239,7 +1196,6 @@ exports.getStudentTrackerData = async (req, res) => {
   }
 };
 
-// 35. 🌓 TOGGLE COURSE VISIBILITY | LOGIC: SWITCHING BETWEEN HIDDEN AND VISIBLE STATES
 exports.toggleHideCourse = async (req, res) => {
   try {
     const { userId, courseId } = req.body;
@@ -1267,7 +1223,6 @@ exports.toggleHideCourse = async (req, res) => {
   }
 };
 
-// 36. 🗑️ REMOVE COURSE FROM STUDENT | LOGIC: TERMINATING ENROLLMENT & DASHBOARD CLEANUP
 exports.deleteStudentCourse = async (req, res) => {
   try {
     const { userId, courseId } = req.body;
@@ -1288,7 +1243,6 @@ exports.deleteStudentCourse = async (req, res) => {
   }
 };
 
-// 37. 🔔 SEND ALERT EMAIL | LOGIC: DISPATCHING CRITICAL NOTIFICATIONS TO STUDENTS & VIP MEMBERS
 exports.sendStudentAlert = async (req, res) => {
   try {
     const { userId, studentEmail, studentName, message, reason } = req.body;
@@ -1316,9 +1270,3 @@ exports.sendStudentAlert = async (req, res) => {
       .json({ success: false, message: "Mail failed: " + error.message });
   }
 };
-
-//#endregion
-// ==========================================
-// ✅ Code successfully organized and refactored.
-// 🚀 Ready for Production!
-// ==========================================

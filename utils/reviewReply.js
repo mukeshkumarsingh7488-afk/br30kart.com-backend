@@ -1,11 +1,10 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 function generateSmartReply({
   username = "",
   rating,
   comment,
   customReply = "",
 }) {
-  const text = comment.toLowerCase(); // ✅ yaha fix
+  const text = comment.toLowerCase();
 
   const positiveWords = [
     "good",
@@ -19,9 +18,9 @@ function generateSmartReply({
   const negativeWords = ["bad", "worst", "scam", "poor", "refund", "not good"];
 
   const isNegative = negativeWords.some((w) => text.includes(w));
-  const userName = username ? ` ${username}` : ""; // ✅ yaha fix
+  const userName = username ? ` ${username}` : "";
 
-  // 🔥 1. CUSTOM REPLY (highest priority)
+  // CUSTOM REPLY (highest priority)
   if (customReply && customReply.trim() !== "") {
     return customReply;
   }
@@ -41,7 +40,7 @@ function generateSmartReply({
     return `Thank you ${userName}! 🙏 We are constantly improving our courses to give you a better experience at BR30 Academy.`;
   }
 
-  // 🔥 4. NEGATIVE AUTO REPLY (1-2 Stars or Negative text)
+  // NEGATIVE AUTO REPLY (1-2 Stars or Negative text)
   if (isNegative || rating <= 2) {
     const replies = [
       `Sorry for the inconvenience ${userName}. 🙏 Please reach out to BR30 Support, we’ll resolve your issue immediately.`,
@@ -51,13 +50,7 @@ function generateSmartReply({
     return replies[Math.floor(Math.random() * replies.length)];
   }
 
-  return null; // negative = manual
+  return null;
 }
 
 module.exports = { generateSmartReply };
-//#endregion
-// ==========================================================================
-// ✅ ENGAGEMENT STATUS: REVIEW REPLY SYSTEM ORGANIZED & TESTED.
-// 💬 FEEDBACK: INTERACTIVE RESPONSE LOGIC READY.
-// 🚀 DEPLOYMENT: READY FOR PRODUCTION INTERACTION!
-// ==========================================================================

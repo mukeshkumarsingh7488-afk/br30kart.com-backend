@@ -1,9 +1,7 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const Product = require("../models/Product");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 
-// 1. 📦 GET SELLER PRODUCTS | LOGIC: FETCHING INVENTORY FOR THE SELLER DASHBOARD
 exports.getProductsByCategory = async (req, res) => {
   try {
     const user = req.user;
@@ -30,7 +28,6 @@ exports.getProductsByCategory = async (req, res) => {
   }
 };
 
-// 2. 🚀 ADD NEW PRODUCT | LOGIC: PRODUCT CREATION & MEDIA UPLOAD (SELLER DASHBOARD)
 exports.addProduct = async (req, res) => {
   console.log("🚀 Add Product Process Started...");
 
@@ -107,7 +104,6 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-// 3. 🔄 UPDATE COURSE LOGIC | LOGIC: MODIFYING CONTENT & METADATA (SELLER DASHBOARD)
 exports.updateCourse = async (req, res) => {
   console.log("=================================");
   console.log("🚀 Update Request Process Started...");
@@ -185,7 +181,6 @@ exports.updateCourse = async (req, res) => {
   }
 };
 
-// 4. 💎 COURSE PURCHASE ENROLLMENT | LOGIC: VIP BADGE ASSIGNMENT & WELCOME EMAIL DISPATCH
 exports.purchaseCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
@@ -221,7 +216,6 @@ exports.purchaseCourse = async (req, res) => {
       purchasedAt: new Date(),
     });
 
-    // 💎 VIP upgrade logic
     user.isVip = true;
     user.role = "vip";
 
@@ -242,7 +236,6 @@ exports.purchaseCourse = async (req, res) => {
       console.log("❌ Mail Error:", mailErr.message);
     }
 
-    // 📦 RESPONSE (frontend ready)
     res.status(200).json({
       success: true,
       msg: "Course purchased successfully! 💎",
@@ -259,7 +252,6 @@ exports.purchaseCourse = async (req, res) => {
   }
 };
 
-// 5. 🛒 BUY COURSE EXECUTION | LOGIC: INITIATING CHECKOUT & ENROLLMENT PROCESS
 exports.purchaseProduct = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -301,7 +293,6 @@ exports.purchaseProduct = async (req, res) => {
   }
 };
 
-// 6. 🔐 FETCH MY COURSES | LOGIC: RETRIEVING ENROLLMENTS WITH AUTO-LOCK VERIFICATION
 exports.getMyProducts = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("purchasedCourses");
@@ -329,7 +320,6 @@ exports.getMyProducts = async (req, res) => {
   }
 };
 
-// 7. 📺 FETCH WATCH PAGE CONTENT | LOGIC: LOADING COURSE VIDEOS & RESOURCES (watch.html)
 exports.getProductById = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -362,7 +352,6 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// 8. 🗑️ DELETE PRODUCT | LOGIC: PERMANENT REMOVAL OF CONTENT & ASSOCIATED ASSETS
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
@@ -373,7 +362,6 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// 9. 🌓 TOGGLE VISIBILITY | LOGIC: SWITCHING PRODUCT BETWEEN HIDE AND UNHIDE STATES
 exports.toggleVisibility = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -398,8 +386,3 @@ exports.toggleVisibility = async (req, res) => {
     res.status(500).json({ success: false, msg: "Server error occurred" });
   }
 };
-//#endregion
-// ==========================================
-// ✅ Code successfully organized and refactored.
-// 🚀 Ready for Production!
-// ==========================================

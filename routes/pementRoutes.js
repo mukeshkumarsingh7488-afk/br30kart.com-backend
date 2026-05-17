@@ -1,4 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | AUTH SYSTEM INITIALIZED ━━━━━
 const express = require("express");
 const router = express.Router();
 
@@ -15,14 +14,11 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// =============================
 // ✅ CREATE ORDER
-// =============================
 router.post("/create-order", async (req, res) => {
   try {
     const { amount, productId, buyerEmail, sellerEmail } = req.body;
 
-    // Razorpay amount humesha paise mein leta hai (Amount * 100)
     const options = {
       amount: Number(amount) * 100,
       currency: "INR",
@@ -31,7 +27,6 @@ router.post("/create-order", async (req, res) => {
 
     const order = await razorpay.orders.create(options);
 
-    // Frontend ko data wapas bhejna
     res.json({
       orderId: order.id,
       amount: order.amount,
@@ -46,9 +41,7 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
-// =============================
 // ✅ VERIFY PAYMENT
-// =============================
 router.post("/verify-payment", async (req, res) => {
   try {
     const {
@@ -60,7 +53,6 @@ router.post("/verify-payment", async (req, res) => {
       sellerEmail,
     } = req.body;
 
-    // 1. Signature Verify karna
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -68,13 +60,10 @@ router.post("/verify-payment", async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      // 2. Product ki details nikaalna (Name aur Price ke liye)
       const productData = await Product.findById(productId);
 
-      // 3. Seller ka naam fetch karna (Database se email ke zariye)
       const sellerData = await User.findOne({ email: sellerEmail });
 
-      // 4. Order save karna (Saari fields ke saath)
       await Order.create({
         productId: productId,
         productName: productData ? productData.productName : "Unknown Course",
@@ -98,9 +87,7 @@ router.post("/verify-payment", async (req, res) => {
   }
 });
 
-// =============================
 // ✅ MY COURSES
-// =============================
 router.get("/my-courses/:email", async (req, res) => {
   try {
     const orders = await Order.find({
@@ -121,8 +108,3 @@ router.get("/my-courses/:email", async (req, res) => {
 });
 
 module.exports = router;
-//#endregion
-// ==========================================
-// ✅ PEMENT ROUTES ORGANIZED.
-// 🚀 Ready for Production!
-// ==========================================

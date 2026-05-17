@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-// 👨‍🏫 SELLER PROFILE: Stores professional details, credentials, and shop metadata.
 const mongoose = require("mongoose");
 
 const SellerSchema = new mongoose.Schema({
@@ -31,8 +29,3 @@ const SellerSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Seller", SellerSchema);
-//#endregion
-// ==========================================
-// ✅ Schema organized, validated, and refactored.
-// 🚀 Database Model is ready for production!
-// ==========================================

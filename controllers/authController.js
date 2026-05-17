@@ -1,10 +1,8 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const cloudinary = require("cloudinary").v2;
-//  📩 EMAIL TEMPLATE EXPORT | LOGIC: MANAGING SYSTEM-WIDE EMAIL LAYOUTS
 const {
   sendEmail,
   registerOtpTemplate,
@@ -13,7 +11,6 @@ const {
   sellerOtpTemplate,
 } = require("../utils/emailTemplate");
 
-// 1. 🚀 REGISTER CONTROLLER | STATUS: REFACTORED & CLEAN
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -88,7 +85,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// 2. 🔑 VERIFY OTP | LOGIC: SECURE CODE VALIDATION
 exports.verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -126,7 +122,6 @@ exports.verifyOtp = async (req, res) => {
   }
 };
 
-// 3. 👤 LOGIN SYSTEM | LOGIC: AUTHENTICATION & SESSION MANAGEMENT
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -205,7 +200,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// 4. 🛠️ FORGOT PASSWORD | LOGIC: RESET LINK & EMAIL RECOVERY
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -262,7 +256,6 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// 5. 🔄 RESET PASSWORD | LOGIC: NEW CREDENTIAL UPDATE & DATABASE SYNC
 exports.resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
@@ -284,7 +277,6 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// 6. 👤 GET MY PROFILE | LOGIC: FETCHING AUTHENTICATED USER DATA
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -295,7 +287,6 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// 7. 🎨 UPDATE PROFILE | LOGIC: PROFILE PHOTO & IDENTITY MANAGEMENT
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -323,7 +314,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// 8. 📩 SEND OTP | LOGIC: TRIGGERS ON "SEND OTP" BUTTON CLICK
 exports.sendOTP = async (req, res) => {
   try {
     const { email, name } = req.body;
@@ -414,7 +404,6 @@ exports.sendOTP = async (req, res) => {
   }
 };
 
-// 9. 🔐 VERIFY OTP | LOGIC: TRIGGERS ON "VERIFY" BUTTON CLICK
 exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -445,7 +434,6 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-// 10. 📝 FINAL REGISTER | LOGIC: TRIGGERS ON "SUBMIT APPLICATION" CLICK
 exports.sellerRegister = async (req, res) => {
   try {
     const { name, email, password, aadharNo, bankName, accountNo, ifscCode } =
@@ -508,8 +496,3 @@ exports.sellerRegister = async (req, res) => {
     res.status(500).json({ msg: "Registration failed! Error: " + err.message });
   }
 };
-//#endregion
-// ==========================================
-// ✅ Code successfully organized and refactored.
-// 🚀 Ready for Production!
-// ==========================================

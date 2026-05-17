@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-// 📦 ORDER MODEL: Stores transaction details, payment status, and user enrollments.
 const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
@@ -64,8 +62,3 @@ const OrderSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Order", OrderSchema);
-//#endregion
-// ==========================================
-// ✅ Schema organized, validated, and refactored.
-// 🚀 Database Model is ready for production!
-// ==========================================

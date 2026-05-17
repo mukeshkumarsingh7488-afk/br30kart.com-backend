@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-// 🎫 COUPON MODEL: Stores code, discount, status, and expiry for future access.
 const mongoose = require("mongoose");
 
 const couponSchema = new mongoose.Schema({
@@ -31,8 +29,3 @@ const couponSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Coupon", couponSchema);
-//#endregion
-// ==========================================
-// ✅ Schema organized, validated, and refactored.
-// 🚀 Database Model is ready for production!
-// ==========================================

@@ -1,7 +1,5 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 const Order = require("../models/order");
 
-// 1. 📈 GET SELLER ANALYTICS | LOGIC: FETCHING SALES PERFORMANCE & REVENUE METRICS
 exports.getSellerAnalytics = async (req, res) => {
   try {
     const { email, start, end } = req.query;
@@ -65,7 +63,6 @@ exports.getSellerAnalytics = async (req, res) => {
   }
 };
 
-// 2. 📑 TRACK SALES RECORDS | LOGIC: AGGREGATING REAL-TIME TRANSACTION DATA FROM DB
 exports.getSellerSalesRecords = async (req, res) => {
   try {
     const { sellerEmail, search, from, to } = req.query;
@@ -125,7 +122,6 @@ exports.getSellerSalesRecords = async (req, res) => {
   }
 };
 
-// 3. 🎖️ GET BEST SELLER BADGE | LOGIC: CALCULATING PERFORMANCE THRESHOLDS FOR RECOGNITION
 exports.getBestSellers = async (req, res) => {
   try {
     const { email } = req.query;
@@ -193,8 +189,3 @@ exports.getBestSellers = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-//#endregion
-// ==========================================
-// ✅ Code successfully organized and refactored.
-// 🚀 Ready for Production!
-// ==========================================

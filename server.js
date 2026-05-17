@@ -1,6 +1,6 @@
 //#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
 /* ================== ENV CONFIG ================== */
-require("dotenv").config(); // .env file load karega
+require("dotenv").config();
 
 /* ================== IMPORTS ================== */
 const express = require("express");
@@ -21,7 +21,7 @@ const productRoutes = require("./routes/productRoutes");
 const sellerRoutes = require("./routes/sellerRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 
-// Auto-Review System (Har 3 ghante me ek baar fake review post karega)
+// Auto-Review System
 require("./autoReview");
 
 /* ================== APP & SERVER INIT ================== */
@@ -39,7 +39,7 @@ const io = new Server(server, {
   },
 });
 
-// 🔥 Socket.io को ग्लोबल एक्सेस दें ताकि Controllers में use कर सकें
+/* socket io */
 app.set("socketio", io);
 
 /* ================== MIDDLEWARES ================== */
@@ -129,7 +129,6 @@ app.use((err, req, res, next) => {
 
 /* ================== SERVER START ================== */
 const PORT = process.env.PORT || 5000;
-// ⚠️ IMPORTANT: app.listen की जगह server.listen यूज़ करें
 server.listen(PORT, () => {
   console.log(`🚀 Server running on: http://localhost:${PORT}`);
 });

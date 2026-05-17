@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | AUTH SYSTEM INITIALIZED ━━━━━
-
 const express = require("express");
 const router = express.Router();
 
@@ -52,8 +50,3 @@ router.put(
 router.delete("/delete-course/:id", auth, admin, deleteCourse);
 
 module.exports = router;
-//#endregion
-// ==========================================
-// ✅ COURSE ROUTES ORGANIZED.
-// 🚀 Ready for Production!
-// ==========================================

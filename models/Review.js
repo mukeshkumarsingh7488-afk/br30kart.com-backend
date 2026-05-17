@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-// ⭐ REVIEW MODEL: Stores BR30KART ratings, user feedback, and course testimonials.
 const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema({
@@ -33,8 +31,3 @@ const reviewSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Review", reviewSchema);
-//#endregion
-// ==========================================
-// ✅ Schema organized, validated, and refactored.
-// 🚀 Database Model is ready for production!
-// ==========================================

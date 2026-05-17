@@ -1,4 +1,3 @@
-//#region IMPORTS
 const Course = require("../models/course");
 const User = require("../models/User");
 const fs = require("fs");
@@ -7,11 +6,10 @@ const cloudinary = require("cloudinary").v2;
 const fakeVips = require("../fakeUsers");
 
 const jwt = require("jsonwebtoken");
-// curentry not use the file
-//#region Create Course (Admin Create Course Pannel)
+
 exports.createCourse = async (req, res) => {
-  console.log("🚀 Body Aayi:", req.body); // Check Title, Price
-  console.log("📂 File Aayi:", req.file); // Check Photo
+  console.log("🚀 Body Aayi:", req.body);
+  console.log("📂 File Aayi:", req.file);
   console.log("👤 User Aaya:", req.user);
   try {
     const { title, description, price } = req.body;
@@ -32,9 +30,7 @@ exports.createCourse = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//#endregion
 
-//#region add Video Function (Admin Create Course Pannel ke Andar)
 exports.addVideo = async (req, res) => {
   try {
     const { title, videoUrl } = req.body;
@@ -57,17 +53,13 @@ exports.addVideo = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//#endregion
 
-//#region 2. UPDATE COURSE (Admin Course Management ke andar Edit Course ke liye)
-// ✅ 1. UPDATE COURSE (Controller Function)
 exports.updateCourse = async (req, res) => {
   try {
     console.log("=================================");
     console.log("🚀 Update Request Body:", req.body);
     console.log("🔍 Searching for ID:", req.params.id);
 
-    // 1. Saare fields nikaalo
     const { title, price, videoLink } = req.body;
 
     let updateFields = {};
@@ -75,7 +67,6 @@ exports.updateCourse = async (req, res) => {
     if (price) updateFields.price = Number(price);
     if (videoLink) updateFields.videoLink = videoLink;
 
-    // 2. Image Handle (Cloudinary)
     if (req.file) {
       updateFields.thumbnail = req.file.path;
       console.log("📷 New Image Path:", req.file.path);
@@ -83,17 +74,15 @@ exports.updateCourse = async (req, res) => {
 
     console.log("📦 Data going to DB:", updateFields);
 
-    // 3. DB Update
     const updatedCourse = await Course.findByIdAndUpdate(
       req.params.id,
       { $set: updateFields },
       {
-        returnDocument: "after", // Latest Mongoose style
+        returnDocument: "after",
         runValidators: true,
       },
     );
 
-    // 4. Check if course exists
     if (!updatedCourse) {
       console.log("❌ DB mein ye ID nahi mili!");
       return res
@@ -109,10 +98,6 @@ exports.updateCourse = async (req, res) => {
   }
 };
 
-//#endregion
-
-//#region 3. DELETE COURSE (Admin course Management ke andar Delete Course ke liye)
-// ✅ 2. DELETE COURSE (Controller Function)
 exports.deleteCourse = async (req, res) => {
   try {
     const deletedCourse = await Course.findByIdAndDelete(req.params.id);
@@ -123,9 +108,7 @@ exports.deleteCourse = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
-//#endregion
 
-//#region 4. GET COURSES (Admin Course Management ke andar Sabhi Course Show Karna)
 exports.getCourses = async (req, res) => {
   try {
     const courses = await Course.find().populate("instructor", "name");
@@ -134,9 +117,7 @@ exports.getCourses = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//#endregion
 
-//#region GET MY COURSES (User Dashboard ke Andar)
 exports.getMyCourses = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("purchasedCourses");
@@ -145,9 +126,7 @@ exports.getMyCourses = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//#endregion
 
-//#region GET COURSE BY ID (Admin Course Management ke andar Course ID ke Sath Dikhana)
 exports.getCourseById = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -157,10 +136,7 @@ exports.getCourseById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//#endregion
 
-//#region 5. COURSE PURCHASE LOGIC (VIP Badge + Welcome Mail)
-// 🔥 5. COURSE PURCHASE LOGIC (VIP Badge + Welcome Mail)
 exports.purchaseCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
@@ -171,20 +147,17 @@ exports.purchaseCourse = async (req, res) => {
 
     if (!course) return res.status(404).json({ msg: "Course nahi mila!" });
 
-    // Check agar pehle se kharida hai
     if (user.purchasedCourses.includes(courseId)) {
       return res
         .status(400)
         .json({ msg: "Aapne ye course pehle hi kharid liya hai!" });
     }
 
-    // 1. Data Update (Course add + VIP Badge)
     user.purchasedCourses.push(courseId);
     user.badge = "vip";
     user.isVip = true;
     await user.save();
 
-    // 2. VIP WELCOME MAIL (Green Neon Theme)
     const welcomeHTML = `
   <!DOCTYPE html>
 <html>
@@ -396,21 +369,18 @@ exports.purchaseCourse = async (req, res) => {
 
 </html>`;
 
-    // Email bhej do
-    // ✅ NAYA RESEND API CALL (Nodemailer ki jagah)
     try {
       await resend.emails.send({
-        from: "onboarding@resend.dev", // Testing ke liye yahi rehne do
+        from: "onboarding@resend.dev",
         to: user.email,
         subject: "💎 VIP Status Unlocked: Welcome to the Elite Circle!",
-        html: welcomeHTML, // Tera purana VIP template yahan safe hai
+        html: welcomeHTML,
       });
       console.log("💎 VIP Welcome Email Sent! ✅");
     } catch (e) {
       console.log("Mail error: ", e.message);
     }
 
-    // Final Response
     res.json({
       msg: "Congratulations! Course Purchased & VIP Badge Unlocked! 💎",
       user,
@@ -420,55 +390,41 @@ exports.purchaseCourse = async (req, res) => {
   }
 };
 
-//#endregion
-
-//#region 7. GET LEADERBOARD (Top VIP Traders)
-// 🏆 7. GET LEADERBOARD (Updated with Fake Users & Personalization)
 exports.getLeaderboard = async (req, res) => {
   console.log("Fake Users Loaded:", fakeVips.length);
 
   try {
-    // 1. Database se real VIP users uthao
     let topTraders = await User.find({ badge: "vip" })
       .select("name monthlyProfit profilePic badge isVip")
       .sort({ monthlyProfit: -1 })
-      .limit(15) // Thode zyada real users le lo taaki list bhari lage
+      .limit(15)
       .lean();
 
-    // 2. Real users ke saath Fake users mix karo
     let combinedList = [...topTraders, ...fakeVips];
 
-    // 3. JWT se logged-in user ko Rank 1 par lane ka logic
     const authHeader = req.headers.authorization;
     if (authHeader) {
       try {
-        const token = authHeader.split(" ")[1]; // Bearer Token format
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Apni Secret Key check karna
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const loggedInUserId = decoded.id;
 
-        // Check karo ki logged-in user list mein hai ya nahi
         const userIndex = combinedList.findIndex(
           (u) => u._id && u._id.toString() === loggedInUserId,
         );
 
         if (userIndex !== -1) {
           const myProfile = combinedList[userIndex];
-          // Agar user VIP hai, toh use utha kar Index 0 (Rank 1) par daal do
           if (myProfile.badge === "vip" || myProfile.isVip) {
-            combinedList.splice(userIndex, 1); // Purani rank se hatao
-            combinedList.unshift(myProfile); // Rank 1 par daalo
+            combinedList.splice(userIndex, 1);
+            combinedList.unshift(myProfile);
           }
         }
-      } catch (jwtErr) {
-        // Token galat ho toh normal list dikhao, error mat do
-      }
+      } catch (jwtErr) {}
     }
 
-    // 4. Final list bhej do
     res.json(combinedList);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
-//#endregion

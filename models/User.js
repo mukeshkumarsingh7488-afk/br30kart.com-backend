@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | SYSTEM INITIALIZED ━━━━━
-// 👤 USER MODEL: Stores credentials, roles, and profile information.
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -89,7 +87,6 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    // --- SELLER KYC & APPROVAL SYSTEM ---
     isApproved: {
       type: Boolean,
       default: false,
@@ -101,7 +98,6 @@ const userSchema = new mongoose.Schema(
       aadharBack: { type: String, default: "" },
     },
 
-    // 🏦 --- SELLER BANK DETAILS ---
     bankDetails: {
       bankName: { type: String, default: "" },
       accountNo: { type: String, default: "" },
@@ -133,8 +129,3 @@ userSchema.pre("save", async function () {
   }
 });
 module.exports = mongoose.model("User", userSchema);
-//#endregion
-// ==========================================
-// ✅ Schema organized, validated, and refactored.
-// 🚀 Database Model is ready for production!
-// ==========================================

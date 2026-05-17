@@ -1,5 +1,3 @@
-//#region ━━━━━ 🚀 WELCOME DEVELOPER | BR30KART SYSTEM INITIALIZED ━━━━━
-
 const express = require("express");
 const router = express.Router();
 const reviewController = require("../controllers/reviewController");
@@ -8,8 +6,7 @@ const reviewController = require("../controllers/reviewController");
 router.post("/add", reviewController.postReview);
 router.get("/top10", reviewController.getTopReviews);
 
-// --- Admin Routes (Jo humein ab chahiye) ---
-
+// --- Admin Routes---
 // 1. Saare reviews dekhne ke liye (Admin Panel mein)
 router.get("/all", reviewController.getAllReviews);
 
@@ -35,9 +32,3 @@ exports.getTotalReviewCount = async (req, res) => {
   }
 };
 module.exports = router;
-//#endregion
-// ==========================================================================
-// ✅ SYSTEM STATUS: CODE SUCCESSFULLY ORGANIZED, REFACTORED & TESTED.
-// 🛡️ SECURITY: JWT & ROLE-BASED ACCESS CONTROL (RBAC) ACTIVE.
-// 🚀 DEPLOYMENT: READY FOR PRODUCTION ENVIRONMENT.
-// ==========================================================================

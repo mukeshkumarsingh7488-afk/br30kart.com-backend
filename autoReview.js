@@ -2199,7 +2199,7 @@ const reviewPool = [
 ];
 //#endregion end auto review
 
-// Har 15 minuts mein ek baar review post hoga (0 * * * *)
+// Har 15 minuts mein ek baar review post hoga
 cron.schedule("*/15 * * * *", async () => {
   try {
     const randomIndex = Math.floor(Math.random() * reviewPool.length);
@@ -2207,7 +2207,6 @@ cron.schedule("*/15 * * * *", async () => {
 
     console.log(`Attempting to post review for: ${randomReview.name}`);
 
-    // 1. रिव्यू पोस्ट करो
     await Review.collection.insertOne({
       username: randomReview.name,
       name: randomReview.name,
@@ -2216,27 +2215,25 @@ cron.schedule("*/15 * * * *", async () => {
       comment: randomReview.comment,
       userId: new mongoose.Types.ObjectId(),
       status: "approved",
-      replied: false, // 🔥 यह ऐड किया ताकि run() इसे ढूंढ सके
+      replied: false,
       createdAt: new Date(),
     });
 
     console.log(`✅ SUCCESS: Random Review posted by ${randomReview.name}`);
 
-    // 🔥 2. नया रिव्यू पोस्ट होते ही रिप्लाई लॉजिक चलाओ
     await run();
   } catch (err) {
     console.error("❌ DB SEAM ERROR:", err.message);
   }
 });
 
-// 🔥 RUN (इसे अब हर क्रोन के साथ कॉल किया जाएगा)
 async function run() {
   try {
     const reviews = await Review.find({
       $or: [{ replied: false }, { replied: { $exists: false } }],
     });
 
-    if (reviews.length === 0) return; // अगर कोई नया रिव्यू नहीं है तो रुक जाओ
+    if (reviews.length === 0) return;
 
     console.log("📊 Found Reviews to Reply:", reviews.length);
 
@@ -2246,14 +2243,12 @@ async function run() {
       status: () => ({ json: (data) => console.log("❌ REPLY ERROR:", data) }),
     };
 
-    // कंट्रोलर को कॉल करो
     await reviewController.handleAutoReply(req, res);
   } catch (err) {
     console.error("❌ RUN FUNCTION ERROR:", err.message);
   }
 }
 
-// शुरू में एक बार चला लो पुराने रिव्यूज के लिए
 run();
 //#endregion
 // ==========================================
