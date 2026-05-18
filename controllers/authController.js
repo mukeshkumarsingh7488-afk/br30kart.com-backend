@@ -1,4 +1,3 @@
-import axios from "axios";
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -12,7 +11,7 @@ const {
   sellerOtpTemplate,
 } = require("../utils/emailTemplate");
 
-export const register = async (req, res) => {
+exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -238,7 +237,7 @@ exports.login = async (req, res) => {
   }
 };
 
-export const forgotPassword = async (req, res) => {
+exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -381,7 +380,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-export const sendOTP = async (req, res) => {
+exports.sendOTP = async (req, res) => {
   try {
     const { email, name } = req.body;
 

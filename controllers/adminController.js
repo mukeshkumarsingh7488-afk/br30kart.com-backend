@@ -1,4 +1,3 @@
-import axios from "axios";
 const User = require("../models/User");
 const Order = require("../models/order");
 const nodemailer = require("nodemailer");
@@ -468,7 +467,7 @@ exports.updatePayoutStatus = async (req, res) => {
   }
 };
 
-export const sendPayoutEmail = async (sellerData) => {
+exports.sendPayoutEmail = async (sellerData) => {
   try {
     if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
       throw new Error("Brevo environment variables missing");
@@ -664,7 +663,7 @@ exports.toggleVerification = async (req, res) => {
   }
 };
 
-export const rejectSellerDocs = async (req, res) => {
+exports.rejectSellerDocs = async (req, res) => {
   try {
     const { userId, email, reason } = req.body;
 
@@ -828,7 +827,7 @@ exports.getSellerDetails = async (req, res) => {
   }
 };
 
-export const rejectSeller = async (req, res) => {
+exports.rejectSeller = async (req, res) => {
   try {
     const { id } = req.params;
     const { email, reason } = req.body;
@@ -868,7 +867,7 @@ export const rejectSeller = async (req, res) => {
   }
 };
 
-export const approveSeller = async (req, res) => {
+exports.approveSeller = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -948,7 +947,7 @@ exports.getSellerTracker = async (req, res) => {
   }
 };
 
-export const sendSellerAlert = async (req, res) => {
+exports.sendSellerAlert = async (req, res) => {
   try {
     const { email, name, message } = req.body;
 
@@ -1064,7 +1063,7 @@ exports.bulkUpdateCourses = async (req, res) => {
   }
 };
 
-export const sendSellerActionMail = async (req, res) => {
+exports.sendSellerActionMail = async (req, res) => {
   try {
     const { sellerEmail, sellerName, reason, message, courseId, courseTitle } =
       req.body;
@@ -1278,7 +1277,7 @@ exports.deleteStudentCourse = async (req, res) => {
   }
 };
 
-export const sendStudentAlert = async (req, res) => {
+exports.sendStudentAlert = async (req, res) => {
   try {
     const { userId, studentEmail, studentName, message, reason } = req.body;
 
