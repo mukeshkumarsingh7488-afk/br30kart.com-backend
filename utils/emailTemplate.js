@@ -94,7 +94,7 @@ const registerOtpTemplate = (otp, name = "User") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Welcome" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Welcome" class="banner">
 
   <div class="content">
     <span class="thanks-note">Welcome to BR30ᴛʀᴀᴅᴇʀ! 🚀</span>
@@ -203,7 +203,11 @@ const forgotPasswordTemplate = (otp, name = "User") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Account Security" class="banner">
+  <img 
+  src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg"
+  alt="Account Security"
+  class="banner"
+/>
 
   <div class="content">
     <span class="thanks-note">Hi ${name}, Security Verification! 🔐</span>
@@ -312,7 +316,7 @@ const sellerForgotPasswordTemplate = (otp, name = "Seller") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Security Lockdown" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="Security Lockdown" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${name}, Security Alert! 🔐</span>
@@ -428,7 +432,7 @@ const sellerOtpTemplate = (otp, name = "User") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Secure Verification" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="Secure Verification" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${name}, Security Verification! 🔐</span>
@@ -529,7 +533,7 @@ const payoutTemplate = (data, courseRows) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Payout Successful" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="Payout Successful" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${data.sellerName}, Payment Sent! 💸</span>
@@ -647,7 +651,7 @@ function getUserFailureTemplate(user, course, reason) {
 <body class="email-body">
 <div class="card">
 
-<img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
+<img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Official" class="banner">
 
 <div class="content">
 <span class="thanks-note">Hi ${user.name}, Thank you for your interest! 🚀</span>
@@ -856,7 +860,7 @@ const approvalTemplate = (userName) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Official" class="banner">
 
   <div class="content">
   <span class="thanks-note">Hi ${userName}, Congratulations! 🚀</span>
@@ -970,7 +974,7 @@ const rejectSellerTemplate = (userName, reason) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Official" class="banner">
 
   <div class="content">
   <span class="thanks-note">Hi ${userName}, Update on your Application 🚨</span>
@@ -1080,7 +1084,7 @@ const rejectDocsTemplate = (userName, reason) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
+  <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Official" class="banner">
 
   <div class="content">
   <span class="thanks-note">Hi ${userName}, Action Required 🚨</span>
@@ -1204,7 +1208,7 @@ const vipCertTemplate = (userName, certUrl, certId) => {
 </head>
 <body class="email-body">
     <div class="card">
-        <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 VIP Official" class="banner">
+        <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 VIP Official" class="banner">
         
         <div class="content">
             <h1 class="alert-title">🏆 CERTIFICATE READY</h1>
@@ -1323,7 +1327,7 @@ const sellerAlertTemplate = (userName, alertMessage) => {
 </head>
 <body class="email-body">
     <div class="card">
-        <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Admin Alert" class="banner">
+        <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Admin Alert" class="banner">
         
         <div class="content">
             <h1 class="alert-title">📢 ADMIN ALERT</h1>
@@ -1450,7 +1454,7 @@ const sellerAlertTemplate2 = (data) => {
 <body class="email-body">
     <div class="card">
         <!-- 🖼️ Banner (Wahi purana wala) -->
-        <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Admin Alert" class="banner">
+        <img src="https://res.cloudinary.com/dw4imlekm/image/upload/v1779141465/Green_burner_qc5lon.jpg" alt="BR30 Admin Alert" class="banner">
         
         <div class="content">
             <h1 class="alert-title">📢 ADMIN ACTION ALERT</h1>
