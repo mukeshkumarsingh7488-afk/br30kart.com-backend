@@ -664,7 +664,7 @@ exports.toggleVerification = async (req, res) => {
   }
 };
 
-exports.rejectSellerDocs = async (req, res) => {
+export const rejectSellerDocs = async (req, res) => {
   try {
     const { userId, email, reason } = req.body;
 
@@ -828,7 +828,7 @@ exports.getSellerDetails = async (req, res) => {
   }
 };
 
-exports.rejectSeller = async (req, res) => {
+export const rejectSeller = async (req, res) => {
   try {
     const { id } = req.params;
     const { email, reason } = req.body;
@@ -868,7 +868,7 @@ exports.rejectSeller = async (req, res) => {
   }
 };
 
-exports.approveSeller = async (req, res) => {
+export const approveSeller = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -948,7 +948,7 @@ exports.getSellerTracker = async (req, res) => {
   }
 };
 
-exports.sendSellerAlert = async (req, res) => {
+export const sendSellerAlert = async (req, res) => {
   try {
     const { email, name, message } = req.body;
 
@@ -1064,7 +1064,7 @@ exports.bulkUpdateCourses = async (req, res) => {
   }
 };
 
-exports.sendSellerActionMail = async (req, res) => {
+export const sendSellerActionMail = async (req, res) => {
   try {
     const { sellerEmail, sellerName, reason, message, courseId, courseTitle } =
       req.body;
@@ -1278,7 +1278,7 @@ exports.deleteStudentCourse = async (req, res) => {
   }
 };
 
-exports.sendStudentAlert = async (req, res) => {
+export const sendStudentAlert = async (req, res) => {
   try {
     const { userId, studentEmail, studentName, message, reason } = req.body;
 

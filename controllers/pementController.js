@@ -183,7 +183,7 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
-exports.handlePaymentFailure = async (req, res) => {
+export const handlePaymentFailure = async (req, res) => {
   try {
     const { courseId, reason } = req.body;
 

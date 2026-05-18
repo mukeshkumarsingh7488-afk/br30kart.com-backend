@@ -238,7 +238,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -279,11 +279,15 @@ exports.forgotPassword = async (req, res) => {
       ? sellerForgotPasswordTemplate(otp, user.name)
       : forgotPasswordTemplate(otp, user.name);
 
+    console.log(
+      `📡 Shipping Live Brevo Password Reset OTP Payload to: ${normalizedEmail}`,
+    );
+
     const brevoResponse = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "BR30 Kart",
+          name: "BR30 Kart Support",
           email: process.env.BREVO_EMAIL.trim(),
         },
         to: [
@@ -377,7 +381,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-exports.sendOTP = async (req, res) => {
+export const sendOTP = async (req, res) => {
   try {
     const { email, name } = req.body;
 
