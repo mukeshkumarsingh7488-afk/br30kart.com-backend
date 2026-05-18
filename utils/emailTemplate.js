@@ -1,4 +1,3 @@
-import axios from "axios";
 const nodemailer = require("nodemailer");
 /* ---------------- SEND EMAIL CORE (GMAIL SMTP) ---------------- */
 
