@@ -1,3 +1,4 @@
+import axios from "axios";
 const User = require("../models/User");
 const Order = require("../models/order");
 const nodemailer = require("nodemailer");
@@ -467,57 +468,91 @@ exports.updatePayoutStatus = async (req, res) => {
   }
 };
 
-const sendPayoutEmail = async (sellerData) => {
+export const sendPayoutEmail = async (sellerData) => {
   try {
+    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+      throw new Error("Brevo environment variables missing");
+    }
+
     const data = Array.isArray(sellerData) ? sellerData[0] : sellerData;
 
-    if (!data || !data.sellerEmail) {
-      console.error("⚠️ Invalid sellerData received:", data);
+    if (!data?.sellerEmail) {
       throw new Error("Invalid seller data or missing email");
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    const coursesArr = Array.isArray(data.courses) ? data.courses : [];
 
-    const coursesArr = data.courses || [];
     const courseRows =
       coursesArr.length > 0
         ? coursesArr
             .map(
               (c) => `
-            <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #eeeeee; font-family: sans-serif; font-size: 14px;">
+                <tr>
+                  <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
                     ${c.name || "Unknown Course"} <b>(x${c.count || 0})</b>
-                </td>
-                <td style="padding: 12px; text-align: right; font-weight: bold; font-family: sans-serif; font-size: 14px; color: #2ecc71;">
+                  </td>
+                  <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
                     ₹${Number(c.total || 0).toLocaleString("en-IN")}
-                </td>
-            </tr>
-        `,
+                  </td>
+                </tr>
+              `,
             )
             .join("")
-        : `<tr><td colspan="2" style="padding: 12px; text-align: center; color: #888;">No course details available</td></tr>`;
+        : `
+            <tr>
+              <td colspan="2" style="padding:12px;text-align:center;color:#888;">
+                No course details available
+              </td>
+            </tr>
+          `;
 
-    const mailOptions = {
-      from: `"BR30 Kart Admin" <${process.env.EMAIL_USER}>`,
-      to: data.sellerEmail,
+    const bccPayload = [];
 
-      bcc: process.env.ADMIN_EMAIL || [],
+    if (process.env.ADMIN_EMAIL) {
+      process.env.ADMIN_EMAIL.split(",")
+        .map((email) => email.trim())
+        .filter(Boolean)
+        .forEach((email) => {
+          bccPayload.push({ email });
+        });
+    }
+
+    const brevoPayload = {
+      sender: {
+        name: "BR30 Kart Admin Cluster",
+        email: process.env.BREVO_EMAIL.trim(),
+      },
+      to: [
+        {
+          email: data.sellerEmail.trim(),
+        },
+      ],
       subject: `✅ Payment Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")} Credited`,
-      html: payoutTemplate(data, courseRows),
+      htmlContent: payoutTemplate(data, courseRows),
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Payout Email Sent to: ${data.sellerEmail}`);
-    return info;
-  } catch (err) {
-    console.error("❌ sendPayoutEmail Error:", err.message);
+    if (bccPayload.length) {
+      brevoPayload.bcc = bccPayload;
+    }
 
+    const brevoResponse = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      brevoPayload,
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_SMTP_KEY.trim(),
+          "content-type": "application/json",
+        },
+      },
+    );
+
+    return brevoResponse.data;
+  } catch (err) {
+    console.error(
+      "❌ sendPayoutEmail Error:",
+      err.response?.data || err.message,
+    );
     throw err;
   }
 };

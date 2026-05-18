@@ -1,31 +1,58 @@
+import axios from "axios";
 const nodemailer = require("nodemailer");
 /* ---------------- SEND EMAIL CORE (GMAIL SMTP) ---------------- */
+
 const sendEmail = async (options) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+    const BREVO_EMAIL = process.env.BREVO_EMAIL?.trim();
+    const BREVO_KEY = process.env.BREVO_SMTP_KEY?.trim();
+
+    const targetEmail = options.to || options.email;
+    const emailHtmlContent = options.html || options.message;
+
+    if (!BREVO_EMAIL || !BREVO_KEY) {
+      throw new Error("Missing Brevo credentials");
+    }
+
+    if (!targetEmail) {
+      throw new Error("Recipient email missing");
+    }
+
+    if (!emailHtmlContent) {
+      throw new Error("Email content missing");
+    }
+
+    console.log(`📧 Sending email to: ${targetEmail}`);
+
+    const brevoResponse = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "BR30 Kart",
+          email: BREVO_EMAIL,
+        },
+        to: [{ email: targetEmail.trim() }],
+        subject: options.subject,
+        htmlContent: emailHtmlContent,
       },
-    });
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": BREVO_KEY,
+          "content-type": "application/json",
+        },
+      },
+    );
 
-    console.log(`📧 Sending email TO: ${options.to || options.email}`);
+    console.log("✅ Email sent successfully via Brevo");
 
-    const mailOptions = {
-      from: `"BR30 Trader" <${process.env.EMAIL_USER}>`,
-      to: options.to || options.email,
-      subject: options.subject,
-      html: options.html || options.message,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("✅ Email Sent Successfully via Nodemailer:", info.messageId);
-    return info;
+    return brevoResponse.data;
   } catch (error) {
-    console.error("❌ Nodemailer Error:", error.message);
-    throw error;
+    console.error("❌ Email failed:", error.response?.data || error.message);
+
+    throw new Error(
+      error.response?.data?.message || error.message || "Email sending failed",
+    );
   }
 };
 
@@ -67,7 +94,7 @@ const registerOtpTemplate = (otp, name = "User") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Welcome" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Welcome" class="banner">
 
   <div class="content">
     <span class="thanks-note">Welcome to BR30ᴛʀᴀᴅᴇʀ! 🚀</span>
@@ -176,7 +203,7 @@ const forgotPasswordTemplate = (otp, name = "User") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="Account Security" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Account Security" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${name}, Security Verification! 🔐</span>
@@ -285,7 +312,7 @@ const sellerForgotPasswordTemplate = (otp, name = "Seller") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="Security Lockdown" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Security Lockdown" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${name}, Security Alert! 🔐</span>
@@ -401,7 +428,7 @@ const sellerOtpTemplate = (otp, name = "User") => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="Secure Verification" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Secure Verification" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${name}, Security Verification! 🔐</span>
@@ -502,7 +529,7 @@ const payoutTemplate = (data, courseRows) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="Payout Successful" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="Payout Successful" class="banner">
 
   <div class="content">
     <span class="thanks-note">Hi ${data.sellerName}, Payment Sent! 💸</span>
@@ -620,7 +647,7 @@ function getUserFailureTemplate(user, course, reason) {
 <body class="email-body">
 <div class="card">
 
-<img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Official" class="banner">
+<img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
 
 <div class="content">
 <span class="thanks-note">Hi ${user.name}, Thank you for your interest! 🚀</span>
@@ -829,7 +856,7 @@ const approvalTemplate = (userName) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Official" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
 
   <div class="content">
   <span class="thanks-note">Hi ${userName}, Congratulations! 🚀</span>
@@ -943,7 +970,7 @@ const rejectSellerTemplate = (userName, reason) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Official" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
 
   <div class="content">
   <span class="thanks-note">Hi ${userName}, Update on your Application 🚨</span>
@@ -1053,7 +1080,7 @@ const rejectDocsTemplate = (userName, reason) => {
   <body class="email-body">
   <div class="card">
 
-  <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Official" class="banner">
+  <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Official" class="banner">
 
   <div class="content">
   <span class="thanks-note">Hi ${userName}, Action Required 🚨</span>
@@ -1177,7 +1204,7 @@ const vipCertTemplate = (userName, certUrl, certId) => {
 </head>
 <body class="email-body">
     <div class="card">
-        <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 VIP Official" class="banner">
+        <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 VIP Official" class="banner">
         
         <div class="content">
             <h1 class="alert-title">🏆 CERTIFICATE READY</h1>
@@ -1296,7 +1323,7 @@ const sellerAlertTemplate = (userName, alertMessage) => {
 </head>
 <body class="email-body">
     <div class="card">
-        <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Admin Alert" class="banner">
+        <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Admin Alert" class="banner">
         
         <div class="content">
             <h1 class="alert-title">📢 ADMIN ALERT</h1>
@@ -1423,7 +1450,7 @@ const sellerAlertTemplate2 = (data) => {
 <body class="email-body">
     <div class="card">
         <!-- 🖼️ Banner (Wahi purana wala) -->
-        <img src="https://i.ibb.co/tpJPw6YY/Green-burner.jpg" alt="BR30 Admin Alert" class="banner">
+        <img src="https://res-console.cloudinary.com/dw4imlekm/thumbnails/v1/image/upload/v1779141465/R3JlZW5fYnVybmVyX3FjNWxvbg==/drilldown" alt="BR30 Admin Alert" class="banner">
         
         <div class="content">
             <h1 class="alert-title">📢 ADMIN ACTION ALERT</h1>

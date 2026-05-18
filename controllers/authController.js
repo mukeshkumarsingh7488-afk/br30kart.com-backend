@@ -1,3 +1,4 @@
+import axios from "axios";
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -11,35 +12,53 @@ const {
   sellerOtpTemplate,
 } = require("../utils/emailTemplate");
 
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ msg: "All fields are required!" });
+      return res.status(400).json({
+        msg: "All fields are required!",
+      });
     }
 
-    const existingUser = await User.findOne({ email });
+    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+      return res.status(500).json({
+        msg: "Email service configuration missing",
+      });
+    }
 
-    if (existingUser && existingUser.isVerified) {
-      return res
-        .status(400)
-        .json({ msg: "User already exists. Please login." });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingUser?.isVerified) {
+      return res.status(400).json({
+        msg: "User already exists. Please login.",
+      });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const masterAdminEmail = process.env.MASTER_ADMIN_EMAIL;
-    const isAdmin = email.toLowerCase() === masterAdminEmail?.toLowerCase();
+    const masterAdminEmail =
+      process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
+
+    const isAdmin = normalizedEmail === masterAdminEmail;
+
     const isSeller = role === "seller";
+
+    const userRole = isAdmin ? "admin" : isSeller ? "seller" : "student";
 
     let user;
 
     if (existingUser) {
-      existingUser.name = name;
+      existingUser.name = name.trim();
       existingUser.password = hashedPassword;
-      existingUser.role = isAdmin ? "admin" : isSeller ? "seller" : "student";
+      existingUser.role = userRole;
       existingUser.isVerified = false;
       existingUser.otp = otp;
       existingUser.otpExpires = Date.now() + 10 * 60 * 1000;
@@ -47,41 +66,60 @@ exports.register = async (req, res) => {
       user = await existingUser.save();
     } else {
       user = await User.create({
-        name,
-        email,
+        name: name.trim(),
+        email: normalizedEmail,
         password: hashedPassword,
-        role: isAdmin ? "admin" : isSeller ? "seller" : "student",
+        role: userRole,
         isVerified: false,
         otp,
         otpExpires: Date.now() + 10 * 60 * 1000,
       });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    let html = isSeller
+    const htmlTemplateContent = isSeller
       ? sellerOtpTemplate(otp, name)
       : registerOtpTemplate(otp, name);
 
-    await transporter.sendMail({
-      from: '"BR30 Support" <no-reply@br30.com>',
-      to: email,
-      subject: "Verify Your Account - OTP",
-      html,
-    });
+    const brevoResponse = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "BR30 Support Terminal",
+          email: process.env.BREVO_EMAIL.trim(),
+        },
+        to: [
+          {
+            email: normalizedEmail,
+          },
+        ],
+        subject: "🔐 Verify Your Account - OTP Security Token",
+        htmlContent: htmlTemplateContent,
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_SMTP_KEY.trim(),
+          "content-type": "application/json",
+        },
+      },
+    );
 
-    res.status(200).json({
-      msg: "OTP sent successfully! Please verify your email.",
-    });
+    if (brevoResponse.status === 200 || brevoResponse.status === 201) {
+      return res.status(200).json({
+        msg: "OTP sent successfully! Please verify your email.",
+      });
+    }
+
+    throw new Error("Failed to send OTP email");
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Server error" });
+    console.error(
+      "🔥 Critical Registration API Error:",
+      err.response?.data || err.message,
+    );
+
+    return res.status(500).json({
+      msg: "Server error",
+    });
   }
 };
 
@@ -205,54 +243,79 @@ exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ msg: "Email is required!" });
+      return res.status(400).json({
+        msg: "Email is required!",
+      });
     }
 
-    const user = await User.findOne({ email });
+    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+      return res.status(500).json({
+        msg: "Email service configuration missing",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ msg: "User with this email does not exist!" });
+      return res.status(404).json({
+        msg: "User with this email does not exist!",
+      });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     user.otp = otp;
     user.otpExpires = Date.now() + 10 * 60 * 1000;
-    await user.save();
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    await user.save();
 
     const isSeller = user.role === "seller";
 
-    let html;
+    const html = isSeller
+      ? sellerForgotPasswordTemplate(otp, user.name)
+      : forgotPasswordTemplate(otp, user.name);
 
-    if (isSeller) {
-      html = sellerForgotPasswordTemplate(otp, user.name);
-    } else {
-      html = forgotPasswordTemplate(otp, user.name);
+    const brevoResponse = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "BR30 Kart",
+          email: process.env.BREVO_EMAIL.trim(),
+        },
+        to: [
+          {
+            email: normalizedEmail,
+          },
+        ],
+        subject: isSeller ? "Seller Password Reset OTP" : "Password Reset OTP",
+        htmlContent: html,
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_SMTP_KEY.trim(),
+          "content-type": "application/json",
+        },
+      },
+    );
+
+    if (brevoResponse.status === 200 || brevoResponse.status === 201) {
+      return res.status(200).json({
+        msg: "Reset OTP sent to your email!",
+      });
     }
 
-    await transporter.sendMail({
-      from: '"BR30 Kart" <no-reply@br30kart.com>',
-      to: email,
-      subject: isSeller ? "Seller Password Reset OTP" : "Password Reset OTP",
-      html,
-    });
-
-    res.status(200).json({
-      msg: "Reset OTP sent to your email!",
-    });
+    throw new Error("Failed to send reset OTP email");
   } catch (err) {
-    console.error("Forgot Password Error:", err);
-    res.status(500).json({ msg: "Error sending reset OTP!" });
+    console.error("Forgot Password Error:", err.response?.data || err.message);
+
+    return res.status(500).json({
+      msg: "Error sending reset OTP!",
+    });
   }
 };
 
@@ -318,15 +381,23 @@ exports.sendOTP = async (req, res) => {
   try {
     const { email, name } = req.body;
 
-    console.log("📩 OTP Request for:", email);
-
     if (!email) {
       return res.status(400).json({
         msg: "Bhai, email dena zaroori hai!",
       });
     }
 
-    let user = await User.findOne({ email });
+    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+      return res.status(500).json({
+        msg: "Email service configuration missing",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    let user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (user) {
       if (user.isApproved === true) {
@@ -335,9 +406,7 @@ exports.sendOTP = async (req, res) => {
         });
       }
 
-      if (user.isRejected === true) {
-        console.log("🔄 Rejected seller re-applying...");
-      } else if (user.password) {
+      if (!user.isRejected && user.password) {
         return res.status(400).json({
           msg: "Email already registered! Please Login.",
         });
@@ -345,60 +414,73 @@ exports.sendOTP = async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const otpExpires = Date.now() + 10 * 60 * 1000;
 
     if (!user) {
-      console.log("🆕 Creating new user entry...");
-
       user = new User({
-        email,
+        email: normalizedEmail,
         otp,
         otpExpires,
-        name: name || "Pending Verification",
+        name: name?.trim() || "Pending Verification",
         role: "seller",
         isApproved: false,
         isRejected: false,
         isVerified: false,
       });
     } else {
-      console.log("🔄 Updating OTP...");
-
       user.otp = otp;
       user.otpExpires = otpExpires;
       user.isVerified = false;
+
+      if (name?.trim()) {
+        user.name = name.trim();
+      }
     }
 
-    await user.save({ validateBeforeSave: false });
-
-    console.log("✅ OTP saved for:", email);
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+    await user.save({
+      validateBeforeSave: false,
     });
 
     const subject = user.isRejected
       ? "OTP for Re-application"
       : "Your Seller Verification OTP";
 
-    await transporter.sendMail({
-      from: `"BR30Kart Support" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: subject,
+    const brevoResponse = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "BR30Kart Support",
+          email: process.env.BREVO_EMAIL.trim(),
+        },
+        to: [
+          {
+            email: normalizedEmail,
+          },
+        ],
+        subject,
+        htmlContent: sellerOtpTemplate(otp, user.name || "User"),
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_SMTP_KEY.trim(),
+          "content-type": "application/json",
+        },
+      },
+    );
 
-      html: sellerOtpTemplate(otp, user.name || "User"),
-    });
+    if (brevoResponse.status === 200 || brevoResponse.status === 201) {
+      return res.status(200).json({
+        msg: "OTP sent successfully! 📩",
+      });
+    }
 
-    res.status(200).json({
-      msg: "OTP sent successfully! 📩",
-    });
+    throw new Error("Failed to send OTP");
   } catch (err) {
-    console.error("🔥 Send OTP Error:", err);
+    console.error("🔥 Send OTP Error:", err.response?.data || err.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       msg: "Server error! OTP send nahi ho paya!",
     });
   }

@@ -1,3 +1,4 @@
+import axios from "axios";
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const User = require("../models/User");
@@ -186,40 +187,89 @@ exports.handlePaymentFailure = async (req, res) => {
   try {
     const { courseId, reason } = req.body;
 
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        msg: "Course ID is required",
+      });
+    }
+
+    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+      return res.status(500).json({
+        success: false,
+        msg: "Email service configuration missing",
+      });
+    }
+
     const user = await User.findById(req.user.id);
+
     const course = await Course.findById(courseId);
 
     if (!user || !course) {
-      return res.status(404).json({ msg: "User ya Course nahi mila" });
+      return res.status(404).json({
+        success: false,
+        msg: "User ya Course nahi mila",
+      });
     }
 
-    console.log("User:", user.name, user.email);
-    console.log("Course:", course.title);
+    const supportEmail =
+      process.env.SUPPORT_EMAIL_USER?.trim() || process.env.BREVO_EMAIL.trim();
 
-    await sendEmail({
-      authEmail: process.env.SUPPORT_EMAIL_USER,
-      authPass: process.env.SUPPORT_EMAIL_PASS,
-      brandName: "SYSTEM ALERT",
-      email: process.env.SUPPORT_EMAIL_USER,
-      subject: `⚠️ Payment Failed: ${user.name}`,
-      html: getSupportFailureTemplate(user, course, reason),
-    });
+    await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "SYSTEM ALERT",
+          email: process.env.BREVO_EMAIL.trim(),
+        },
+        to: [
+          {
+            email: supportEmail,
+          },
+        ],
+        subject: `⚠️ Payment Failed: ${user.name}`,
+        htmlContent: getSupportFailureTemplate(user, course, reason),
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_SMTP_KEY.trim(),
+          "content-type": "application/json",
+        },
+      },
+    );
 
-    await sendEmail({
-      authEmail: process.env.SUPPORT_EMAIL_USER,
-      authPass: process.env.SUPPORT_EMAIL_PASS,
-      brandName: "BR30 TRADER Support",
-      email: user.email,
-      subject: `Need help with ${course.title}?`,
-      html: getUserFailureTemplate(user, course, reason),
-    });
+    await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "BR30 TRADER Support",
+          email: process.env.BREVO_EMAIL.trim(),
+        },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: `Need help with ${course.title}?`,
+        htmlContent: getUserFailureTemplate(user, course, reason),
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_SMTP_KEY.trim(),
+          "content-type": "application/json",
+        },
+      },
+    );
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       msg: "Failure alerts sent!",
     });
   } catch (err) {
-    console.error("❌ FAILURE ALERT ERROR:", err);
+    console.error("❌ FAILURE ALERT ERROR:", err.response?.data || err.message);
+
     return res.status(500).json({
       success: false,
       msg: "Alert Error",
