@@ -41,7 +41,7 @@ app.set("socketio", io);
 /* ================== MIDDLEWARES ================== */
 app.use(
   cors({
-    origin: ["http://127.0.0.1:5500", "https://br-30-kart.vercel.app", "http://localhost:5173"],
+    origin: ["http://127.0.0.1:5500", "https://br-30-kart.vercel.app", "http://localhost:5173", "https://br30kart-com-frontade.vercel.app"],
     credentials: true,
   }),
 );
