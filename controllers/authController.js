@@ -204,8 +204,10 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: finalRole,
+        role: user.role,
         badge: user.badge,
+        certificate: user.certificate || null,
+        purchasedCourses: user.purchasedCourses || [],
       },
     });
   } catch (err) {
