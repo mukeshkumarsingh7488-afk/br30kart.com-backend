@@ -416,7 +416,7 @@ exports.updatePayoutStatus = async (req, res) => {
       await sendEmail({
         to: result.sellerEmail,
         subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
-        html: payoutTemplate(result, safeCourses),
+        html: payoutTemplate(result, courseRows),
       });
 
       console.log("✅ Payout email sent to:", result.sellerEmail);
@@ -469,15 +469,15 @@ exports.sendPayoutEmail = async (sellerData) => {
         ];
 
     // 🔥 BUILD HTML ROWS (100% SAFE)
-    const courseRows = finalCourses
-      .map(
-        (c) => `
+    const courseRows = safeCourses
+      .map((c) => {
+        return `
     <tr>
-      <td>${c.name} (x${c.count || 1})</td>
-      <td style="text-align:right;">₹${c.total || 0}</td>
+      <td>${c.name} (x${c.count})</td>
+      <td style="text-align:right;">₹${Number(c.total).toLocaleString("en-IN")}</td>
     </tr>
-  `,
-      )
+  `;
+      })
       .join("");
 
     const brevoPayload = {
