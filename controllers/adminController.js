@@ -422,31 +422,31 @@ exports.sendPayoutEmail = async (sellerData) => {
       throw new Error("Invalid seller data or missing email");
     }
 
-    const coursesArr = Array.isArray(data.courses) ? data.courses : [];
+    const coursesArr = Array.isArray(data?.courses) ? data.courses : [];
 
-    const courseRows =
-      coursesArr.length > 0
-        ? coursesArr
-            .map(
-              (c) => `
-                <tr>
-                  <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
-                    ${c.name || "Unknown Course"} <b>(x${c.count || 0})</b>
-                  </td>
-                  <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
-                    ₹${Number(c.total || 0).toLocaleString("en-IN")}
-                  </td>
-                </tr>
-              `,
-            )
-            .join("")
-        : `
-            <tr>
-              <td colspan="2" style="padding:12px;text-align:center;color:#888;">
-                No course details available
-              </td>
-            </tr>
-          `;
+    const courseRows = coursesArr.length
+      ? coursesArr
+          .map(
+            (c) => `
+        <tr>
+          <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
+            ${typeof c === "object" ? c.name || "Unknown Course" : c} 
+            <b>(x${typeof c === "object" ? c.count || 0 : 1})</b>
+          </td>
+          <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
+            ₹${Number(typeof c === "object" ? c.total || 0 : 0).toLocaleString("en-IN")}
+          </td>
+        </tr>
+      `,
+          )
+          .join("")
+      : `
+      <tr>
+        <td colspan="2" style="padding:12px;text-align:center;color:#888;">
+          No course details available
+        </td>
+      </tr>
+    `;
 
     const bccPayload = [];
 
