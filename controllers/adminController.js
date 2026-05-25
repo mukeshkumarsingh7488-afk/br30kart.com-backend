@@ -390,6 +390,7 @@ exports.updatePayoutStatus = async (req, res) => {
 
     const result = summary[0];
 
+    // 🔥 DB UPDATE
     await Order.updateMany(
       {
         sellerEmail: email,
@@ -405,8 +406,27 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     );
 
-    // 🔥 FIX: PASS COURSES DIRECTLY (NO ERROR)
-    await sendEmail(result);
+    // 🔥 COURSE ROWS (IMPORTANT FIX)
+    const courseRows = (result.courses || [])
+      .map(
+        (c) => `
+          <tr>
+            <td>${c.name} (x${c.count})</td>
+            <td style="text-align:right;">₹${Number(c.total).toLocaleString("en-IN")}</td>
+          </tr>
+        `,
+      )
+      .join("");
+
+    // 🔥 FINAL EMAIL HTML
+    const emailHTML = payoutTemplate(result, courseRows);
+
+    // 🔥 SEND EMAIL (ONLY ONE FUNCTION)
+    await sendEmail({
+      to: result.sellerEmail,
+      subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
+      html: emailHTML,
+    });
 
     return res.status(200).json({
       success: true,
@@ -414,7 +434,7 @@ exports.updatePayoutStatus = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Payout Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -427,9 +447,20 @@ exports.sendPayoutEmail = async (data) => {
     const BREVO_EMAIL = process.env.BREVO_EMAIL?.trim();
     const BREVO_KEY = process.env.BREVO_SMTP_KEY?.trim();
 
+    // 🔥 SAFE EMAIL (IMPORTANT FIX)
+    const recipientEmail = data?.sellerEmail?.trim() || data?.email?.trim();
+
+    if (!recipientEmail) {
+      throw new Error("Recipient email missing in payout data");
+    }
+
+    if (!BREVO_EMAIL || !BREVO_KEY) {
+      throw new Error("Brevo environment variables missing");
+    }
+
     const coursesArr = Array.isArray(data?.courses) ? data.courses : [];
 
-    // 🔥 FIXED COURSE ROWS
+    // 🔥 COURSE ROWS (KEEP SAME)
     const courseRows = coursesArr.length
       ? coursesArr
           .map(
@@ -453,7 +484,11 @@ exports.sendPayoutEmail = async (data) => {
         name: "BR30 Kart Payout",
         email: BREVO_EMAIL,
       },
-      to: [{ email: data.sellerEmail }],
+      to: [
+        {
+          email: recipientEmail,
+        },
+      ],
       subject: `💰 Payout Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")}`,
       htmlContent: payoutTemplate(data, courseRows),
     };
