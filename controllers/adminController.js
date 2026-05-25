@@ -562,9 +562,13 @@ exports.toggleVerification = async (req, res) => {
     const body = `${message}<div style="margin-top:15px;padding:12px;border-left:4px solid ${color};background:${color}15;border-radius:6px;"><b>Current Status: ${status} ${statusEmoji}</b></div><p style="margin-top:15px;">If you have any query, you can contact our support team.</p>`;
 
     try {
-      await sendNotificationEmail(user.email, subject, "Seller Account Update", body, color);
+      await sendEmail({
+        to: user.email,
+        subject,
+        html: body,
+      });
     } catch (mailErr) {
-      console.error("MAIL ERROR:", mailErr);
+      console.error("MAIL ERROR:", mailErr.message);
     }
 
     return res.status(200).json({
