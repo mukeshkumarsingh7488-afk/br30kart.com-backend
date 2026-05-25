@@ -44,8 +44,7 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const masterAdminEmail =
-      process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
+    const masterAdminEmail = process.env.MASTER_ADMIN_EMAIL?.trim().toLowerCase();
 
     const isAdmin = normalizedEmail === masterAdminEmail;
 
@@ -76,9 +75,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    const htmlTemplateContent = isSeller
-      ? sellerOtpTemplate(otp, name)
-      : registerOtpTemplate(otp, name);
+    const htmlTemplateContent = isSeller ? sellerOtpTemplate(otp, name) : registerOtpTemplate(otp, name);
 
     const brevoResponse = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
@@ -112,10 +109,7 @@ exports.register = async (req, res) => {
 
     throw new Error("Failed to send OTP email");
   } catch (err) {
-    console.error(
-      "🔥 Critical Registration API Error:",
-      err.response?.data || err.message,
-    );
+    console.error("🔥 Critical Registration API Error:", err.response?.data || err.message);
 
     return res.status(500).json({
       msg: "Server error",
@@ -195,9 +189,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    const masterAdminEmail = process.env.MASTER_ADMIN_EMAIL;
-    const isAdmin = email.toLowerCase() === masterAdminEmail.toLowerCase();
-
     if (!isAdmin && !user.isVerified) {
       return res.status(401).json({ msg: "Please verify your email first!" });
     }
@@ -211,16 +202,12 @@ exports.login = async (req, res) => {
       });
     }
 
-    const finalRole = isAdmin ? "admin" : user.role;
+    const finalRole = user.role;
 
     user.lastLogin = new Date();
     await user.save();
 
-    const token = jwt.sign(
-      { id: user._id, role: finalRole },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" },
-    );
+    const token = jwt.sign({ id: user._id, role: finalRole }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     res.status(200).json({
       token,
@@ -275,13 +262,9 @@ exports.forgotPassword = async (req, res) => {
 
     const isSeller = user.role === "seller";
 
-    const html = isSeller
-      ? sellerForgotPasswordTemplate(otp, user.name)
-      : forgotPasswordTemplate(otp, user.name);
+    const html = isSeller ? sellerForgotPasswordTemplate(otp, user.name) : forgotPasswordTemplate(otp, user.name);
 
-    console.log(
-      `📡 Shipping Live Brevo Password Reset OTP Payload to: ${normalizedEmail}`,
-    );
+    console.log(`📡 Shipping Live Brevo Password Reset OTP Payload to: ${normalizedEmail}`);
 
     const brevoResponse = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
@@ -333,9 +316,7 @@ exports.resetPassword = async (req, res) => {
       user.otp = undefined;
       user.otpExpires = undefined;
       await user.save();
-      res
-        .status(200)
-        .json({ msg: "Password Reset Successful! You can login now." });
+      res.status(200).json({ msg: "Password Reset Successful! You can login now." });
     } else {
       res.status(400).json({ msg: "Invalid OTP or Expired!" });
     }
@@ -366,11 +347,7 @@ exports.updateProfile = async (req, res) => {
       updateData.profilePic = req.file.path;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: updateData },
-      { new: true },
-    ).select("-password");
+    const updatedUser = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select("-password");
 
     if (!updatedUser) return res.status(404).json({ msg: "User not found!" });
 
@@ -446,9 +423,7 @@ exports.sendOTP = async (req, res) => {
       validateBeforeSave: false,
     });
 
-    const subject = user.isRejected
-      ? "OTP for Re-application"
-      : "Your Seller Verification OTP";
+    const subject = user.isRejected ? "OTP for Re-application" : "Your Seller Verification OTP";
 
     const brevoResponse = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
@@ -522,8 +497,7 @@ exports.verifyOTP = async (req, res) => {
 
 exports.sellerRegister = async (req, res) => {
   try {
-    const { name, email, password, aadharNo, bankName, accountNo, ifscCode } =
-      req.body;
+    const { name, email, password, aadharNo, bankName, accountNo, ifscCode } = req.body;
 
     const user = await User.findOne({ email });
     if (!user || !user.isVerified) {
@@ -533,10 +507,7 @@ exports.sellerRegister = async (req, res) => {
     const masterEmail = process.env.MASTER_ADMIN_EMAIL || "";
     const isAdmin = email.toLowerCase() === masterEmail.toLowerCase();
 
-    if (
-      !isAdmin &&
-      (!req.files?.aadharFront || !req.files?.aadharBack || !req.files?.bankDoc)
-    ) {
+    if (!isAdmin && (!req.files?.aadharFront || !req.files?.aadharBack || !req.files?.bankDoc)) {
       return res.status(400).json({
         msg: "Please upload all required documents (Aadhaar Front, Back, and Bank Document). 📁",
       });
@@ -551,10 +522,8 @@ exports.sellerRegister = async (req, res) => {
 
     user.kycDetails = {
       aadharNo: isAdmin ? "" : aadharNo,
-      aadharFront:
-        req.files?.aadharFront?.[0]?.path || user.kycDetails?.aadharFront || "",
-      aadharBack:
-        req.files?.aadharBack?.[0]?.path || user.kycDetails?.aadharBack || "",
+      aadharFront: req.files?.aadharFront?.[0]?.path || user.kycDetails?.aadharFront || "",
+      aadharBack: req.files?.aadharBack?.[0]?.path || user.kycDetails?.aadharBack || "",
     };
 
     user.bankDetails = {
@@ -568,9 +537,7 @@ exports.sellerRegister = async (req, res) => {
     user.otpExpires = null;
 
     await user.save();
-    console.log(
-      `✅ Application updated for: ${email}. isRejected reset to false.`,
-    );
+    console.log(`✅ Application updated for: ${email}. isRejected reset to false.`);
 
     res.status(201).json({
       msg: isAdmin
