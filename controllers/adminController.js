@@ -408,83 +408,85 @@ exports.updatePayoutStatus = async (req, res) => {
 
 exports.sendPayoutEmail = async (sellerData) => {
   try {
-    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+    const emailSender = process.env.BREVO_EMAIL?.trim();
+    const apiKey = process.env.BREVO_SMTP_KEY?.trim();
+
+    if (!emailSender || !apiKey) {
       throw new Error("Brevo environment variables missing");
+    }
+
+    if (!sellerData) {
+      throw new Error("Seller data missing");
     }
 
     const data = Array.isArray(sellerData) ? sellerData[0] : sellerData;
 
     if (!data?.sellerEmail) {
-      throw new Error("Invalid seller data or missing email");
+      throw new Error("Seller email missing");
     }
 
-    const coursesArr = Array.isArray(data.courses) ? data.courses : [];
+    // SAFE COURSES HANDLING
+    const coursesArr = Array.isArray(data?.courses) ? data.courses : [];
 
-    const courseRows =
-      coursesArr.length > 0
-        ? coursesArr
-            .map(
-              (c) => `
-                <tr>
-                  <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
-                    ${c.name || "Unknown Course"} <b>(x${c.count || 0})</b>
-                  </td>
-                  <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
-                    ₹${Number(c.total || 0).toLocaleString("en-IN")}
-                  </td>
-                </tr>
-              `,
-            )
-            .join("")
-        : `
-            <tr>
-              <td colspan="2" style="padding:12px;text-align:center;color:#888;">
-                No course details available
-              </td>
-            </tr>
-          `;
-
-    const bccPayload = [];
-
-    if (process.env.ADMIN_EMAIL) {
-      process.env.ADMIN_EMAIL.split(",")
-        .map((email) => email.trim())
-        .filter(Boolean)
-        .forEach((email) => {
-          bccPayload.push({ email });
-        });
-    }
+    const courseRows = coursesArr.length
+      ? coursesArr
+          .map(
+            (c) => `
+          <tr>
+            <td style="padding:12px;border-bottom:1px solid #eee;font-size:14px;">
+              ${c.name || "Unknown Course"} <b>(x${c.count || 0})</b>
+            </td>
+            <td style="padding:12px;text-align:right;font-weight:bold;color:#2ecc71;">
+              ₹${Number(c.total || 0).toLocaleString("en-IN")}
+            </td>
+          </tr>
+        `,
+          )
+          .join("")
+      : `
+          <tr>
+            <td colspan="2" style="padding:12px;text-align:center;color:#888;">
+              No course details available
+            </td>
+          </tr>
+        `;
 
     const brevoPayload = {
       sender: {
-        name: "BR30 Kart Admin Cluster",
-        email: process.env.BREVO_EMAIL.trim(),
+        name: "BR30 Kart Payout",
+        email: emailSender,
       },
       to: [
         {
           email: data.sellerEmail.trim(),
         },
       ],
-      subject: `✅ Payment Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")} Credited`,
+      subject: `✅ Payout Credited: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")}`,
       htmlContent: payoutTemplate(data, courseRows),
     };
 
-    if (bccPayload.length) {
-      brevoPayload.bcc = bccPayload;
+    // OPTIONAL ADMIN BCC
+    if (process.env.ADMIN_EMAIL) {
+      brevoPayload.bcc = process.env.ADMIN_EMAIL.split(",")
+        .map((e) => ({ email: e.trim() }))
+        .filter((e) => e.email);
     }
 
-    const brevoResponse = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
+    const response = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
       headers: {
-        accept: "application/json",
-        "api-key": process.env.BREVO_SMTP_KEY.trim(),
+        "api-key": apiKey,
         "content-type": "application/json",
+        accept: "application/json",
       },
     });
 
-    return brevoResponse.data;
+    console.log("✅ Payout Email Sent:", data.sellerEmail);
+
+    return response.data;
   } catch (err) {
-    console.error("❌ sendPayoutEmail Error:", err.response?.data || err.message);
-    throw err;
+    console.error("❌ Payout Email Error:", err.response?.data || err.message);
+
+    return null;
   }
 };
 
