@@ -18,15 +18,9 @@ exports.getAllSellersDocs = async (req, res) => {
   try {
     const allUsers = await User.find({});
 
-    const students = allUsers.filter(
-      (u) => u.role === "student" || u.role === "vip",
-    );
-    const activeSellers = allUsers.filter(
-      (u) => u.role === "seller" && u.isApproved === true,
-    );
-    const pendingSellers = allUsers.filter(
-      (u) => u.role === "seller" && u.isApproved === false,
-    );
+    const students = allUsers.filter((u) => u.role === "student" || u.role === "vip");
+    const activeSellers = allUsers.filter((u) => u.role === "seller" && u.isApproved === true);
+    const pendingSellers = allUsers.filter((u) => u.role === "seller" && u.isApproved === false);
 
     const vips = allUsers.filter((u) => u.role === "vip");
 
@@ -53,9 +47,7 @@ exports.approveSeller = async (req, res) => {
 
     if (!user) {
       console.log("❌ Approval Error: User not found");
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     await User.findByIdAndUpdate(id, { isApproved: true });
@@ -83,18 +75,14 @@ exports.toggleUserBlock = async (req, res) => {
     const user = await User.findById(id);
     if (!user) {
       console.log("❌ User not found in DB");
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     const newStatus = !user.isBlocked;
 
     await User.findByIdAndUpdate(id, { isBlocked: newStatus });
 
-    console.log(
-      `✅ User ${user.name} is now ${newStatus ? "BLOCKED 🚫" : "UNBLOCKED ✅"}`,
-    );
+    console.log(`✅ User ${user.name} is now ${newStatus ? "BLOCKED 🚫" : "UNBLOCKED ✅"}`);
 
     res.status(200).json({
       success: true,
@@ -114,21 +102,13 @@ exports.deleteUserAccount = async (req, res) => {
     const user = await User.findById(id);
 
     if (!user) {
-      console.log(
-        `%c❌ Delete Failed: User with ID ${id} not found!`,
-        "color: red;",
-      );
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      console.log(`%c❌ Delete Failed: User with ID ${id} not found!`, "color: red;");
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     await User.findByIdAndDelete(id);
 
-    console.log(
-      `%c🗑️ [DATABASE] User Deleted: ${user.name} (${user.email})`,
-      "color: #ff4d4d; font-weight: bold;",
-    );
+    console.log(`%c🗑️ [DATABASE] User Deleted: ${user.name} (${user.email})`, "color: #ff4d4d; font-weight: bold;");
 
     res.status(200).json({
       success: true,
@@ -146,10 +126,7 @@ exports.toggleVIPStatus = async (req, res) => {
     console.log(`%c[DEBUG] VIP Toggle Hit for: ${id}`, "color: yellow;");
 
     const user = await User.findById(id);
-    if (!user)
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     if (user.role === "vip" || user.isVip === true) {
       user.role = "student";
@@ -160,9 +137,7 @@ exports.toggleVIPStatus = async (req, res) => {
     }
 
     await user.save();
-    console.log(
-      `✅ Status Updated: Role is ${user.role}, isVip is ${user.isVip}`,
-    );
+    console.log(`✅ Status Updated: Role is ${user.role}, isVip is ${user.isVip}`);
 
     res.status(200).json({
       success: true,
@@ -198,25 +173,17 @@ exports.toggleSellerApproval = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id);
 
-    if (!user)
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     user.isApproved = !user.isApproved;
     await user.save();
 
-    console.log(
-      `%c[DB] Seller ${user.name} Approval: ${user.isApproved}`,
-      "color: #2ecc71;",
-    );
+    console.log(`%c[DB] Seller ${user.name} Approval: ${user.isApproved}`, "color: #2ecc71;");
 
     res.status(200).json({
       success: true,
       isApproved: user.isApproved,
-      message: user.isApproved
-        ? "Seller Approved! ✅"
-        : "Seller Unapproved! ❌",
+      message: user.isApproved ? "Seller Approved! ✅" : "Seller Unapproved! ❌",
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -247,11 +214,7 @@ exports.getFinancialStats = async (req, res) => {
 
           totalPayout: {
             $sum: {
-              $cond: [
-                { $in: ["$payoutStatus", ["Completed", "paid"]] },
-                { $toDouble: "$sellerEarnings" },
-                0,
-              ],
+              $cond: [{ $in: ["$payoutStatus", ["Completed", "paid"]] }, { $toDouble: "$sellerEarnings" }, 0],
             },
           },
         },
@@ -266,10 +229,7 @@ exports.getFinancialStats = async (req, res) => {
       },
     ]);
 
-    const result =
-      statsData.length > 0
-        ? statsData[0]
-        : { totalSales: 0, totalPayout: 0, feeCollected: 0 };
+    const result = statsData.length > 0 ? statsData[0] : { totalSales: 0, totalPayout: 0, feeCollected: 0 };
 
     res.status(200).json({
       success: true,
@@ -302,41 +262,25 @@ exports.getFridayPayouts = async (req, res) => {
 
           netDue: {
             $sum: {
-              $cond: [
-                { $in: ["$payoutStatus", ["pending", "Pending"]] },
-                { $toDouble: "$sellerEarnings" },
-                0,
-              ],
+              $cond: [{ $in: ["$payoutStatus", ["pending", "Pending"]] }, { $toDouble: "$sellerEarnings" }, 0],
             },
           },
 
           adminCommission: {
             $sum: {
-              $cond: [
-                { $in: ["$payoutStatus", ["pending", "Pending"]] },
-                { $toDouble: "$platformCommission" },
-                0,
-              ],
+              $cond: [{ $in: ["$payoutStatus", ["pending", "Pending"]] }, { $toDouble: "$platformCommission" }, 0],
             },
           },
 
           dueAmount: {
             $sum: {
-              $cond: [
-                { $in: ["$payoutStatus", ["pending", "Pending"]] },
-                { $toDouble: "$amount" },
-                0,
-              ],
+              $cond: [{ $in: ["$payoutStatus", ["pending", "Pending"]] }, { $toDouble: "$amount" }, 0],
             },
           },
 
           alreadyPaid: {
             $sum: {
-              $cond: [
-                { $in: ["$payoutStatus", ["Completed", "paid"]] },
-                { $toDouble: "$sellerEarnings" },
-                0,
-              ],
+              $cond: [{ $in: ["$payoutStatus", ["Completed", "paid"]] }, { $toDouble: "$sellerEarnings" }, 0],
             },
           },
           allProducts: { $push: "$productName" },
@@ -384,9 +328,7 @@ exports.updatePayoutStatus = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email is required" });
+      return res.status(400).json({ success: false, message: "Email is required" });
     }
 
     const summary = await Order.aggregate([
@@ -394,7 +336,7 @@ exports.updatePayoutStatus = async (req, res) => {
         $match: {
           sellerEmail: email,
           status: "success",
-          payoutStatus: "Pending",
+          payoutStatus: { $regex: /^pending$/i },
         },
       },
       {
@@ -438,9 +380,7 @@ exports.updatePayoutStatus = async (req, res) => {
     ]);
 
     if (summary.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No pending orders found." });
+      return res.status(404).json({ success: false, message: "No pending orders found." });
     }
 
     await Order.updateMany(
@@ -454,9 +394,7 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     );
 
-    sendPayoutEmail(summary[0]).catch((err) =>
-      console.log("Email Error:", err),
-    );
+    sendPayoutEmail(summary[0]).catch((err) => console.log("Email Error:", err));
 
     res.status(200).json({
       success: true,
@@ -535,24 +473,17 @@ exports.sendPayoutEmail = async (sellerData) => {
       brevoPayload.bcc = bccPayload;
     }
 
-    const brevoResponse = await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      brevoPayload,
-      {
-        headers: {
-          accept: "application/json",
-          "api-key": process.env.BREVO_SMTP_KEY.trim(),
-          "content-type": "application/json",
-        },
+    const brevoResponse = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
+      headers: {
+        accept: "application/json",
+        "api-key": process.env.BREVO_SMTP_KEY.trim(),
+        "content-type": "application/json",
       },
-    );
+    });
 
     return brevoResponse.data;
   } catch (err) {
-    console.error(
-      "❌ sendPayoutEmail Error:",
-      err.response?.data || err.message,
-    );
+    console.error("❌ sendPayoutEmail Error:", err.response?.data || err.message);
     throw err;
   }
 };
@@ -578,9 +509,7 @@ exports.getAllData = async (req, res) => {
       sellers: sellers,
     });
 
-    console.log(
-      `📊 Data Fetched: ${totalStudents} Users (Student+VIP), ${totalSellers} Sellers`,
-    );
+    console.log(`📊 Data Fetched: ${totalStudents} Users (Student+VIP), ${totalSellers} Sellers`);
   } catch (error) {
     console.error("Dashboard Data Error:", error.message);
     res.status(500).json({
@@ -646,13 +575,7 @@ exports.toggleVerification = async (req, res) => {
       </p>
     `;
 
-    await sendNotificationEmail(
-      user.email,
-      subject,
-      "Seller Account Update",
-      body,
-      color,
-    );
+    await sendNotificationEmail(user.email, subject, "Seller Account Update", body, color);
 
     res.json({
       success: true,
@@ -705,8 +628,7 @@ exports.getAllProducts = async (req, res) => {
 exports.approveProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product)
-      return res.status(404).json({ msg: "Course nahi mila bhai!" });
+    if (!product) return res.status(404).json({ msg: "Course nahi mila bhai!" });
 
     product.isApproved = !product.isApproved;
     await product.save();
@@ -724,8 +646,7 @@ exports.approveProduct = async (req, res) => {
 exports.toggleVisibility = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product)
-      return res.status(404).json({ success: false, msg: "Course nahi mila!" });
+    if (!product) return res.status(404).json({ success: false, msg: "Course nahi mila!" });
 
     product.isVisible = product.isVisible === true ? false : true;
 
@@ -734,9 +655,7 @@ exports.toggleVisibility = async (req, res) => {
     res.json({
       success: true,
       isVisible: product.isVisible,
-      msg: product.isVisible
-        ? "Course is now Visible on Store 👁️"
-        : "Course is now Hidden 🚫",
+      msg: product.isVisible ? "Course is now Visible on Store 👁️" : "Course is now Hidden 🚫",
     });
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });
@@ -745,11 +664,7 @@ exports.toggleVisibility = async (req, res) => {
 
 exports.resetCourseDiscount = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { discount: 0 },
-      { new: true },
-    );
+    const product = await Product.findByIdAndUpdate(req.params.id, { discount: 0 }, { new: true });
 
     if (!product) return res.status(404).json({ msg: "Course nahi mila!" });
 
@@ -785,9 +700,7 @@ exports.getOrderDetail = async (req, res) => {
     const order = await Order.findById(req.params.id);
 
     if (!order) {
-      return res
-        .status(404)
-        .json({ msg: "Bhai, ye order database mein nahi mila!" });
+      return res.status(404).json({ msg: "Bhai, ye order database mein nahi mila!" });
     }
 
     res.json(order);
@@ -819,9 +732,7 @@ exports.getPendingSellers = async (req, res) => {
 
 exports.getSellerDetails = async (req, res) => {
   try {
-    const seller = await User.findById(req.params.id).select(
-      "kycDetails bankDetails name email",
-    );
+    const seller = await User.findById(req.params.id).select("kycDetails bankDetails name email");
     res.json({ success: true, seller });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error fetching data" });
@@ -833,16 +744,10 @@ exports.rejectSeller = async (req, res) => {
     const { id } = req.params;
     const { email, reason } = req.body;
 
-    const seller = await User.findByIdAndUpdate(
-      id,
-      { isApproved: false, isRejected: true },
-      { new: true },
-    );
+    const seller = await User.findByIdAndUpdate(id, { isApproved: false, isRejected: true }, { new: true });
 
     if (!seller) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Seller not found" });
+      return res.status(404).json({ success: false, message: "Seller not found" });
     }
 
     const htmlTemplate = rejectSellerTemplate(seller.name, reason);
@@ -872,16 +777,9 @@ exports.approveSeller = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const seller = await User.findByIdAndUpdate(
-      id,
-      { isApproved: true },
-      { new: true },
-    );
+    const seller = await User.findByIdAndUpdate(id, { isApproved: true }, { new: true });
 
-    if (!seller)
-      return res
-        .status(404)
-        .json({ success: false, message: "Seller not found!" });
+    if (!seller) return res.status(404).json({ success: false, message: "Seller not found!" });
 
     const htmlContent = approvalTemplate(seller.name);
 
@@ -897,9 +795,7 @@ exports.approveSeller = async (req, res) => {
     });
   } catch (err) {
     console.error("🔥 Error:", err.message);
-    res
-      .status(500)
-      .json({ success: false, message: "Server Error: " + err.message });
+    res.status(500).json({ success: false, message: "Server Error: " + err.message });
   }
 };
 
@@ -975,9 +871,7 @@ exports.toggleBlockSeller = async (req, res) => {
 
     await user.save();
 
-    console.log(
-      `🚫 Status Updated: ${user.email} is now ${user.isBlocked ? "Blocked" : "Active"}`,
-    );
+    console.log(`🚫 Status Updated: ${user.email} is now ${user.isBlocked ? "Blocked" : "Active"}`);
 
     res.json({ success: true, isBlocked: user.isBlocked });
   } catch (err) {
@@ -997,10 +891,7 @@ exports.deleteSeller = async (req, res) => {
 exports.toggleFeatured = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product)
-      return res
-        .status(404)
-        .json({ success: false, msg: "Product not found!" });
+    if (!product) return res.status(404).json({ success: false, msg: "Product not found!" });
 
     product.isFeatured = product.isFeatured === true ? false : true;
     await product.save();
@@ -1008,9 +899,7 @@ exports.toggleFeatured = async (req, res) => {
     res.json({
       success: true,
       isFeatured: product.isFeatured,
-      msg: product.isFeatured
-        ? "Marked as Best Seller 🔥"
-        : "Removed from Best Seller",
+      msg: product.isFeatured ? "Marked as Best Seller 🔥" : "Removed from Best Seller",
     });
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });
@@ -1024,9 +913,7 @@ exports.bulkUpdateCourses = async (req, res) => {
     console.log("Bulk Action Received:", { action, idsCount: ids?.length });
 
     if (!ids || ids.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No IDs provided" });
+      return res.status(400).json({ success: false, message: "No IDs provided" });
     }
 
     if (action === "delete") {
@@ -1047,9 +934,7 @@ exports.bulkUpdateCourses = async (req, res) => {
     const updateData = actionsMap[action];
 
     if (!updateData) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid action selected" });
+      return res.status(400).json({ success: false, message: "Invalid action selected" });
     }
 
     await Product.updateMany({ _id: { $in: ids } }, { $set: updateData });
@@ -1066,8 +951,7 @@ exports.bulkUpdateCourses = async (req, res) => {
 
 exports.sendSellerActionMail = async (req, res) => {
   try {
-    const { sellerEmail, sellerName, reason, message, courseId, courseTitle } =
-      req.body;
+    const { sellerEmail, sellerName, reason, message, courseId, courseTitle } = req.body;
 
     console.log("📩 Attempting to Notify Seller:", sellerEmail);
 
@@ -1088,9 +972,7 @@ exports.sendSellerActionMail = async (req, res) => {
     res.json({ success: true, message: "Seller notified successfully! 📧" });
   } catch (error) {
     console.error("❌ Mail Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Mail failed: " + error.message });
+    res.status(500).json({ success: false, message: "Mail failed: " + error.message });
   }
 };
 
@@ -1108,28 +990,16 @@ exports.bulkUpdateUsers = async (req, res) => {
     const queryIds = { _id: { $in: ids } };
     switch (action) {
       case "approve_seller":
-        await User.updateMany(
-          { ...queryIds, role: "seller" },
-          { $set: { isApproved: true } },
-        );
+        await User.updateMany({ ...queryIds, role: "seller" }, { $set: { isApproved: true } });
         break;
       case "unapprove_seller":
-        await User.updateMany(
-          { ...queryIds, role: "seller" },
-          { $set: { isApproved: false } },
-        );
+        await User.updateMany({ ...queryIds, role: "seller" }, { $set: { isApproved: false } });
         break;
       case "block_seller":
-        await User.updateMany(
-          { ...queryIds, role: "seller" },
-          { $set: { isBlocked: true } },
-        );
+        await User.updateMany({ ...queryIds, role: "seller" }, { $set: { isBlocked: true } });
         break;
       case "unblock_seller":
-        await User.updateMany(
-          { ...queryIds, role: "seller" },
-          { $set: { isBlocked: false } },
-        );
+        await User.updateMany({ ...queryIds, role: "seller" }, { $set: { isBlocked: false } });
         break;
       case "delete_seller":
         await User.deleteMany({ ...queryIds, role: "seller" });
@@ -1139,37 +1009,22 @@ exports.bulkUpdateUsers = async (req, res) => {
         await User.updateMany(queryIds, { $set: { role: "vip", isVip: true } });
         break;
       case "remove_vip":
-        await User.updateMany(
-          { ...queryIds, role: "vip" },
-          { $set: { role: "student", isVip: false } },
-        );
+        await User.updateMany({ ...queryIds, role: "vip" }, { $set: { role: "student", isVip: false } });
         break;
       case "block_vip":
-        await User.updateMany(
-          { ...queryIds, role: "vip" },
-          { $set: { isBlocked: true } },
-        );
+        await User.updateMany({ ...queryIds, role: "vip" }, { $set: { isBlocked: true } });
         break;
       case "unblock_vip":
-        await User.updateMany(
-          { ...queryIds, role: "vip" },
-          { $set: { isBlocked: false } },
-        );
+        await User.updateMany({ ...queryIds, role: "vip" }, { $set: { isBlocked: false } });
         break;
       case "delete_vip":
         await User.deleteMany({ ...queryIds, role: "vip" });
         break;
       case "block_student":
-        await User.updateMany(
-          { ...queryIds, role: "student" },
-          { $set: { isBlocked: true } },
-        );
+        await User.updateMany({ ...queryIds, role: "student" }, { $set: { isBlocked: true } });
         break;
       case "unblock_student":
-        await User.updateMany(
-          { ...queryIds, role: "student" },
-          { $set: { isBlocked: false } },
-        );
+        await User.updateMany({ ...queryIds, role: "student" }, { $set: { isBlocked: false } });
         break;
       case "delete_student":
         await User.deleteMany({ ...queryIds, role: "student" });
@@ -1191,9 +1046,7 @@ exports.bulkUpdateUsers = async (req, res) => {
         break;
 
       default:
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid action selected!" });
+        return res.status(400).json({ success: false, message: "Invalid action selected!" });
     }
 
     res.json({
@@ -1202,9 +1055,7 @@ exports.bulkUpdateUsers = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Bulk User Update Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error! " + error.message });
+    res.status(500).json({ success: false, message: "Server error! " + error.message });
   }
 };
 
@@ -1236,14 +1087,10 @@ exports.toggleHideCourse = async (req, res) => {
     const { userId, courseId } = req.body;
     const user = await User.findById(userId);
 
-    const isHidden = user.hiddenCourses.some(
-      (h) => h.courseId.toString() === courseId,
-    );
+    const isHidden = user.hiddenCourses.some((h) => h.courseId.toString() === courseId);
 
     if (isHidden) {
-      user.hiddenCourses = user.hiddenCourses.filter(
-        (h) => h.courseId.toString() !== courseId,
-      );
+      user.hiddenCourses = user.hiddenCourses.filter((h) => h.courseId.toString() !== courseId);
     } else {
       user.hiddenCourses.push({ courseId });
     }
@@ -1287,8 +1134,7 @@ exports.sendStudentAlert = async (req, res) => {
     const htmlContent = sellerAlertTemplate2({
       userName: studentName || "Student",
       reason: reason || "Account Update",
-      alertMessage:
-        message || "Hey, there's an important update for you from the Admin.",
+      alertMessage: message || "Hey, there's an important update for you from the Admin.",
     });
 
     await sendEmail({
@@ -1300,8 +1146,6 @@ exports.sendStudentAlert = async (req, res) => {
     res.json({ success: true, message: "Student notified successfully! 📧" });
   } catch (error) {
     console.error("❌ Student Alert Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Mail failed: " + error.message });
+    res.status(500).json({ success: false, message: "Mail failed: " + error.message });
   }
 };
