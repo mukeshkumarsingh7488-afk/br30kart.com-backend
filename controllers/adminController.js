@@ -470,20 +470,15 @@ exports.sendPayoutEmail = async (sellerData) => {
 
     // 🔥 BUILD HTML ROWS (100% SAFE)
     const courseRows = finalCourses
-      .map((c) => {
-        return `
+      .map(
+        (c) => `
       <tr>
-        <td style="padding:12px;border-bottom:1px solid #eee;">
-          ${c.name || "Unknown Course"} <b>(x${c.count || 1})</b>
-        </td>
-        <td style="padding:12px;text-align:right;font-weight:bold;color:#2ecc71;">
-          ₹${Number(c.total || 0).toLocaleString("en-IN")}
-        </td>
+        <td>${c.name} (x${c.count || 1})</td>
+        <td style="text-align:right;">₹${c.total || 0}</td>
       </tr>
-    `;
-      })
+    `,
+      )
       .join("");
-
     const brevoPayload = {
       sender: {
         name: "BR30 Kart Payout",
