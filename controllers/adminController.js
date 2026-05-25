@@ -394,7 +394,11 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     );
 
-    sendPayoutEmail(summary[0]).catch((err) => console.log("Email Error:", err));
+    await sendEmail({
+      to: summary[0].sellerEmail,
+      subject: `💰 Payout Processed: ₹${summary[0].netPayout}`,
+      html: payoutTemplate(summary[0], summary[0].courses),
+    }).catch((err) => console.log("Email Error:", err.message));
 
     res.status(200).json({
       success: true,
