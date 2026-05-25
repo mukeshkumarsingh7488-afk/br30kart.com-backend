@@ -441,7 +441,10 @@ exports.updatePayoutStatus = async (req, res) => {
 
 exports.sendPayoutEmail = async (sellerData) => {
   try {
-    if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+    const BREVO_EMAIL = process.env.BREVO_EMAIL?.trim();
+    const BREVO_KEY = process.env.BREVO_SMTP_KEY?.trim();
+
+    if (!BREVO_EMAIL || !BREVO_KEY) {
       throw new Error("Brevo environment variables missing");
     }
 
@@ -451,66 +454,72 @@ exports.sendPayoutEmail = async (sellerData) => {
       throw new Error("Invalid seller data or missing email");
     }
 
+    // 🔥 FORCE SAFE COURSES (MAIN FIX)
     const coursesArr = Array.isArray(data?.courses) ? data.courses : [];
 
-    // 🔥 FIX: SAFE & CONSISTENT FIELD MAPPING
-    const courseRows = coursesArr.length
+    // 🔥 ENSURE DATA ALWAYS SHOWS
+    const finalCourses = coursesArr.length
       ? coursesArr
-          .map((c) => {
-            const name = c?.name || "Unknown Course";
-            const count = c?.count || 0;
-            const total = c?.total || 0;
+      : [
+          {
+            name: "Course Data Missing",
+            count: 1,
+            total: data?.netPayout || 0,
+          },
+        ];
 
-            return `
-              <tr>
-                <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
-                  ${name} <b>(x${count})</b>
-                </td>
-                <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
-                  ₹${Number(total).toLocaleString("en-IN")}
-                </td>
-              </tr>
-            `;
-          })
-          .join("")
-      : `
-        <tr>
-          <td colspan="2" style="padding:12px;text-align:center;color:#888;">
-            No course details available
-          </td>
-        </tr>
-      `;
+    // 🔥 BUILD HTML ROWS (100% SAFE)
+    const courseRows = finalCourses
+      .map((c) => {
+        const name = c?.name || "Unknown Course";
+        const count = c?.count || 0;
+        const total = c?.total || 0;
+
+        return `
+          <tr>
+            <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
+              ${name} <b>(x${count})</b>
+            </td>
+            <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
+              ₹${Number(total || 0).toLocaleString("en-IN")}
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
 
     const brevoPayload = {
       sender: {
         name: "BR30 Kart Payout",
-        email: process.env.BREVO_EMAIL.trim(),
+        email: BREVO_EMAIL,
       },
       to: [
         {
           email: data.sellerEmail.trim(),
         },
       ],
-      subject: `✅ Payment Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")} Credited`,
-      htmlContent: payoutTemplate(data, courseRows), // 🔥 SAFE NOW
+      subject: `💰 Payout Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")}`,
+      htmlContent: payoutTemplate(data, courseRows),
     };
 
-    // BCC safe
+    // 🔥 ADMIN BCC SAFE
     if (process.env.ADMIN_EMAIL) {
       brevoPayload.bcc = process.env.ADMIN_EMAIL.split(",")
         .map((e) => ({ email: e.trim() }))
         .filter((e) => e.email);
     }
 
-    const brevoResponse = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
+    const response = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
       headers: {
         accept: "application/json",
-        "api-key": process.env.BREVO_SMTP_KEY.trim(),
+        "api-key": BREVO_KEY,
         "content-type": "application/json",
       },
     });
 
-    return brevoResponse.data;
+    console.log("✅ Payout Email Sent Successfully");
+
+    return response.data;
   } catch (err) {
     console.error("❌ sendPayoutEmail Error:", err.response?.data || err.message);
     throw err;
