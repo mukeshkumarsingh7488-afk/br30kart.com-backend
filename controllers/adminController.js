@@ -549,7 +549,7 @@ exports.toggleVerification = async (req, res) => {
     const status = isApproved ? "APPROVED" : "UNVERIFIED";
     const statusEmoji = isApproved ? "✅" : "❌";
     const subject = `Account Status: ${status} ${statusEmoji}`;
-    const html = sellerStatusTemplate(user, isApproved);
+    const html = approvalTemplate(user, isApproved);
 
     try {
       await sendEmail({
