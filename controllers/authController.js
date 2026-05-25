@@ -182,13 +182,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (!user.isVerified) {
-      return res.status(401).json({
-        success: false,
-        msg: "Please verify your email first!",
-      });
-    }
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials!" });
 
