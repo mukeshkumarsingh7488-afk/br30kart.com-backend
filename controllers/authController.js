@@ -182,23 +182,19 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (!user.isApproved) {
-      return res.status(403).json({
+    if (!user.isVerified) {
+      return res.status(401).json({
         success: false,
-        msg: "Your account is pending approval. Please wait for admin review. ⏳",
+        msg: "Please verify your email first!",
       });
-    }
-
-    if (!isAdmin && !user.isVerified) {
-      return res.status(401).json({ msg: "Please verify your email first!" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials!" });
 
-    if (!isAdmin && user.role === "seller" && !user.isApproved) {
+    if (user.role === "seller" && !user.isApproved) {
       return res.status(403).json({
-        msg: "⏳ Aapka Seller Account abhi Verification mein hai. Admin approval ke baad hi aap login kar payenge (24-48h).",
+        msg: "⏳ Your Seller Account is under review. Please wait for admin approval.",
       });
     }
 
