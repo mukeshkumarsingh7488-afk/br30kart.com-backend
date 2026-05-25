@@ -12,6 +12,7 @@ const {
   rejectDocsTemplate,
   sellerAlertTemplate,
   sellerAlertTemplate2,
+  sellerStatusTemplate,
 } = require("../utils/emailTemplate");
 
 exports.getAllSellersDocs = async (req, res) => {
@@ -546,26 +547,15 @@ exports.toggleVerification = async (req, res) => {
 
     const isApproved = user.isApproved;
     const status = isApproved ? "APPROVED" : "UNVERIFIED";
-    const color = isApproved ? "#27ae60" : "#e74c3c";
     const statusEmoji = isApproved ? "✅" : "❌";
     const subject = `Account Status: ${status} ${statusEmoji}`;
-
-    let sellerIdBlock = "";
-    if (isApproved && user.sellerId) {
-      sellerIdBlock = `<div style="margin-top:15px;padding:12px;border:2px dashed #27ae60;border-radius:8px;text-align:center;"><p style="margin:0;font-size:14px;">Your Seller ID</p><h2 style="margin:5px 0;color:#27ae60;">${user.sellerId}</h2><p style="font-size:12px;color:#666;">Keep this ID safe for tracking & support</p></div>`;
-    }
-
-    const message = isApproved
-      ? `<p>🎉 Congratulations <b>${user.name}</b>,</p><p>Your account has been <b style="color:${color};">approved</b> successfully.</p><p>You can now access all platform features without restrictions.</p>${sellerIdBlock}`
-      : `<p>⚠️ Hello <b>${user.name}</b>,</p><p>Your account has been marked as <b style="color:${color};">unverified</b>.</p><p>Some features may be restricted until verification is completed again.</p>`;
-
-    const body = `${message}<div style="margin-top:15px;padding:12px;border-left:4px solid ${color};background:${color}15;border-radius:6px;"><b>Current Status: ${status} ${statusEmoji}</b></div><p style="margin-top:15px;">If you have any query, you can contact our support team.</p>`;
+    const html = sellerStatusTemplate(user, isApproved);
 
     try {
       await sendEmail({
         to: user.email,
         subject,
-        html: body,
+        html,
       });
     } catch (mailErr) {
       console.error("MAIL ERROR:", mailErr.message);
