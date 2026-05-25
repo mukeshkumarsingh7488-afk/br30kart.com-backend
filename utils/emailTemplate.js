@@ -50,9 +50,7 @@ const sendEmail = async (options) => {
   } catch (error) {
     console.error("❌ Email failed:", error.response?.data || error.message);
 
-    throw new Error(
-      error.response?.data?.message || error.message || "Email sending failed",
-    );
+    throw new Error(error.response?.data?.message || error.message || "Email sending failed");
   }
 };
 
@@ -544,17 +542,17 @@ const payoutTemplate = (data, courseRows) => {
     </p>
 
     <!-- Payout Breakdown Table -->
-    <table class="payout-table">
-      <thead>
-        <tr>
-          <th>Course Details</th>
-          <th style="text-align: right;">Gross Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${courseRows}
-      </tbody>
-    </table>
+  <table class="payout-table">
+    <thead>
+      <tr>
+        <th>Course Details</th>
+        <th style="text-align: right;">Gross Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${courseRows}
+    </tbody>
+  </table>
 
     <!-- Final Summary Box -->
     <div class="summary-box">
