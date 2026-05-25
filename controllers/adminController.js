@@ -12,7 +12,6 @@ const {
   rejectDocsTemplate,
   sellerAlertTemplate,
   sellerAlertTemplate2,
-  sellerStatusTemplate,
 } = require("../utils/emailTemplate");
 
 exports.getAllSellersDocs = async (req, res) => {
