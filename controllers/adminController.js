@@ -406,7 +406,7 @@ exports.updatePayoutStatus = async (req, res) => {
     );
 
     // 🔥 FIX: PASS COURSES DIRECTLY (NO ERROR)
-    await sendPayoutEmail(result);
+    await sendEmail(result);
 
     return res.status(200).json({
       success: true,
