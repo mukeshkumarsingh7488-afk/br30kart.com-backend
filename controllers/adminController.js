@@ -334,7 +334,6 @@ exports.updatePayoutStatus = async (req, res) => {
       });
     }
 
-    // 🔥 1. AGGREGATION (SAFE + CORRECT)
     const summary = await Order.aggregate([
       {
         $match: {
@@ -382,8 +381,7 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     ]);
 
-    // 🔥 2. NO DATA CHECK
-    if (!summary || summary.length === 0) {
+    if (!summary.length) {
       return res.status(404).json({
         success: false,
         message: "No pending orders found",
@@ -392,15 +390,11 @@ exports.updatePayoutStatus = async (req, res) => {
 
     const result = summary[0];
 
-    // 🔥 3. SAFE COURSES
-    const safeCourses = Array.isArray(result?.courses) ? result.courses : [];
-
-    // 🔥 4. UPDATE DB (ONLY IF DATA EXISTS)
     await Order.updateMany(
       {
         sellerEmail: email,
         status: "success",
-        payoutStatus: { $regex: /^pending$/i },
+        payoutStatus: /pending/i,
       },
       {
         $set: {
@@ -411,27 +405,16 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     );
 
-    // 🔥 5. SEND EMAIL (SAFE + NO CRASH)
-    try {
-      await sendEmail({
-        to: result.sellerEmail,
-        subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
-        html: payoutTemplate(result, courseRows),
-      });
+    // 🔥 FIX: PASS COURSES DIRECTLY (NO ERROR)
+    await sendPayoutEmail(result);
 
-      console.log("✅ Payout email sent to:", result.sellerEmail);
-    } catch (err) {
-      console.error("❌ Email Error:", err.response?.data || err.message);
-    }
-
-    // 🔥 6. RESPONSE
     return res.status(200).json({
       success: true,
       message: "Payout updated + email sent successfully",
       data: result,
     });
   } catch (error) {
-    console.error("❌ Payout Update Error:", error);
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -439,81 +422,52 @@ exports.updatePayoutStatus = async (req, res) => {
   }
 };
 
-exports.sendPayoutEmail = async (sellerData) => {
+exports.sendPayoutEmail = async (data) => {
   try {
     const BREVO_EMAIL = process.env.BREVO_EMAIL?.trim();
     const BREVO_KEY = process.env.BREVO_SMTP_KEY?.trim();
 
-    if (!BREVO_EMAIL || !BREVO_KEY) {
-      throw new Error("Brevo environment variables missing");
-    }
-
-    const data = Array.isArray(sellerData) ? sellerData[0] : sellerData;
-
-    if (!data?.sellerEmail) {
-      throw new Error("Invalid seller data or missing email");
-    }
-
-    // 🔥 FORCE SAFE COURSES (MAIN FIX)
     const coursesArr = Array.isArray(data?.courses) ? data.courses : [];
 
-    // 🔥 ENSURE DATA ALWAYS SHOWS
-    const finalCourses = coursesArr.length
+    // 🔥 FIXED COURSE ROWS
+    const courseRows = coursesArr.length
       ? coursesArr
-      : [
-          {
-            name: "Course Data Missing",
-            count: 1,
-            total: data?.netPayout || 0,
-          },
-        ];
-
-    // 🔥 BUILD HTML ROWS (100% SAFE)
-    const courseRows = safeCourses
-      .map((c) => {
-        return `
-    <tr>
-      <td>${c.name} (x${c.count})</td>
-      <td style="text-align:right;">₹${Number(c.total).toLocaleString("en-IN")}</td>
-    </tr>
-  `;
-      })
-      .join("");
+          .map(
+            (c) => `
+        <tr>
+          <td>${c.name} (x${c.count})</td>
+          <td style="text-align:right;">₹${Number(c.total).toLocaleString("en-IN")}</td>
+        </tr>
+      `,
+          )
+          .join("")
+      : `
+        <tr>
+          <td>No Courses Found</td>
+          <td style="text-align:right;">₹0</td>
+        </tr>
+      `;
 
     const brevoPayload = {
       sender: {
         name: "BR30 Kart Payout",
         email: BREVO_EMAIL,
       },
-      to: [
-        {
-          email: data.sellerEmail.trim(),
-        },
-      ],
+      to: [{ email: data.sellerEmail }],
       subject: `💰 Payout Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")}`,
       htmlContent: payoutTemplate(data, courseRows),
     };
 
-    // 🔥 ADMIN BCC SAFE
-    if (process.env.ADMIN_EMAIL) {
-      brevoPayload.bcc = process.env.ADMIN_EMAIL.split(",")
-        .map((e) => ({ email: e.trim() }))
-        .filter((e) => e.email);
-    }
-
-    const response = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
+    await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
       headers: {
-        accept: "application/json",
         "api-key": BREVO_KEY,
         "content-type": "application/json",
       },
     });
 
-    console.log("✅ Payout Email Sent Successfully");
-
-    return response.data;
+    console.log("✅ Payout Email Sent");
   } catch (err) {
-    console.error("❌ sendPayoutEmail Error:", err.response?.data || err.message);
+    console.error("❌ Email Error:", err.message);
     throw err;
   }
 };
