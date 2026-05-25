@@ -156,63 +156,81 @@ exports.verifyOtp = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and password required!" });
+    }
+
+    email = email.toLowerCase().trim();
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ msg: "User not found!" });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found!" });
+    }
 
     if (user.isBlocked) {
       return res.status(403).json({
         success: false,
-        msg: "Your account has been blocked. Please contact support for assistance. 🚫",
+        msg: "Your account has been blocked. 🚫",
       });
     }
 
     if (!user.isVerified) {
       return res.status(401).json({
         success: false,
-        msg: "Your email is not verified. Please verify your account using the OTP. ⚠️",
+        msg: "Please verify your email first ⚠️",
       });
     }
 
     if (user.isRejected) {
       return res.status(403).json({
         success: false,
-        msg: "Your registration request has been rejected. ❌",
+        msg: "Your account is rejected ❌",
+      });
+    }
+
+    if (!user.password) {
+      return res.status(500).json({
+        msg: "Password missing in database",
       });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials!" });
+
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Invalid Credentials!" });
+    }
 
     if (user.role === "seller" && !user.isApproved) {
       return res.status(403).json({
-        msg: "⏳ Your Seller Account is under review. Please wait for admin approval.",
+        msg: "⏳ Seller account pending approval",
       });
     }
 
-    const finalRole = user.role;
+    const finalRole = (user.role || "").toLowerCase().trim();
 
     user.lastLogin = new Date();
     await user.save();
 
     const token = jwt.sign({ id: user._id, role: finalRole }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    res.status(200).json({
+    return res.status(200).json({
       token,
       user: {
         id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        badge: user.badge,
+        name: user.name || "",
+        email: user.email || "",
+        role: finalRole,
+        badge: user.badge || "",
         certificate: user.certificate || null,
         purchasedCourses: user.purchasedCourses || [],
       },
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Login failed!" });
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ msg: "Login failed!" });
   }
 };
 
