@@ -386,7 +386,7 @@ exports.updatePayoutStatus = async (req, res) => {
     if (!summary || summary.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No pending orders found.",
+        message: "No pending orders found",
       });
     }
 
@@ -400,7 +400,7 @@ exports.updatePayoutStatus = async (req, res) => {
       {
         sellerEmail: email,
         status: "success",
-        payoutStatus: /pending/i,
+        payoutStatus: { $regex: /^pending$/i },
       },
       {
         $set: {
@@ -472,13 +472,14 @@ exports.sendPayoutEmail = async (sellerData) => {
     const courseRows = finalCourses
       .map(
         (c) => `
-      <tr>
-        <td>${c.name} (x${c.count || 1})</td>
-        <td style="text-align:right;">₹${c.total || 0}</td>
-      </tr>
-    `,
+    <tr>
+      <td>${c.name} (x${c.count || 1})</td>
+      <td style="text-align:right;">₹${c.total || 0}</td>
+    </tr>
+  `,
       )
       .join("");
+
     const brevoPayload = {
       sender: {
         name: "BR30 Kart Payout",
