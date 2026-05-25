@@ -453,39 +453,33 @@ exports.sendPayoutEmail = async (sellerData) => {
 
     const coursesArr = Array.isArray(data?.courses) ? data.courses : [];
 
+    // 🔥 FIX: SAFE & CONSISTENT FIELD MAPPING
     const courseRows = coursesArr.length
       ? coursesArr
-          .map(
-            (c) => `
-      <tr>
-        <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
-          ${c.name || "Unknown Course"} <b>(x${c.count || 0})</b>
-        </td>
-        <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
-          ₹${Number(c.total || 0).toLocaleString("en-IN")}
-        </td>
-      </tr>
-    `,
-          )
+          .map((c) => {
+            const name = c?.name || "Unknown Course";
+            const count = c?.count || 0;
+            const total = c?.total || 0;
+
+            return `
+              <tr>
+                <td style="padding:12px;border-bottom:1px solid #eeeeee;font-family:sans-serif;font-size:14px;">
+                  ${name} <b>(x${count})</b>
+                </td>
+                <td style="padding:12px;text-align:right;font-weight:bold;font-family:sans-serif;font-size:14px;color:#2ecc71;">
+                  ₹${Number(total).toLocaleString("en-IN")}
+                </td>
+              </tr>
+            `;
+          })
           .join("")
       : `
-      <tr>
-        <td colspan="2" style="padding:12px;text-align:center;color:#888;">
-          No course details available
-        </td>
-      </tr>
-    `;
-
-    const bccPayload = [];
-
-    if (process.env.ADMIN_EMAIL) {
-      process.env.ADMIN_EMAIL.split(",")
-        .map((email) => email.trim())
-        .filter(Boolean)
-        .forEach((email) => {
-          bccPayload.push({ email });
-        });
-    }
+        <tr>
+          <td colspan="2" style="padding:12px;text-align:center;color:#888;">
+            No course details available
+          </td>
+        </tr>
+      `;
 
     const brevoPayload = {
       sender: {
@@ -498,11 +492,14 @@ exports.sendPayoutEmail = async (sellerData) => {
         },
       ],
       subject: `✅ Payment Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")} Credited`,
-      htmlContent: payoutTemplate(data, courseRows),
+      htmlContent: payoutTemplate(data, courseRows), // 🔥 SAFE NOW
     };
 
-    if (bccPayload.length) {
-      brevoPayload.bcc = bccPayload;
+    // BCC safe
+    if (process.env.ADMIN_EMAIL) {
+      brevoPayload.bcc = process.env.ADMIN_EMAIL.split(",")
+        .map((e) => ({ email: e.trim() }))
+        .filter((e) => e.email);
     }
 
     const brevoResponse = await axios.post("https://api.brevo.com/v3/smtp/email", brevoPayload, {
