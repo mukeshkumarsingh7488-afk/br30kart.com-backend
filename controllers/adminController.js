@@ -390,7 +390,6 @@ exports.updatePayoutStatus = async (req, res) => {
 
     const result = summary[0];
 
-    // 🔥 DB UPDATE
     await Order.updateMany(
       {
         sellerEmail: email,
@@ -406,7 +405,6 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     );
 
-    // 🔥 COURSE ROWS (IMPORTANT FIX)
     const courseRows = (result.courses || [])
       .map(
         (c) => `
@@ -418,10 +416,8 @@ exports.updatePayoutStatus = async (req, res) => {
       )
       .join("");
 
-    // 🔥 FINAL EMAIL HTML
     const emailHTML = payoutTemplate(result, courseRows);
 
-    // 🔥 SEND EMAIL (ONLY ONE FUNCTION)
     await sendEmail({
       to: result.sellerEmail,
       subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
@@ -447,7 +443,6 @@ exports.sendPayoutEmail = async (data) => {
     const BREVO_EMAIL = process.env.BREVO_EMAIL?.trim();
     const BREVO_KEY = process.env.BREVO_SMTP_KEY?.trim();
 
-    // 🔥 SAFE EMAIL (IMPORTANT FIX)
     const recipientEmail = data?.sellerEmail?.trim() || data?.email?.trim();
 
     if (!recipientEmail) {
@@ -544,68 +539,45 @@ exports.toggleVerification = async (req, res) => {
     const { userId } = req.body;
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ msg: "User nahi mila" });
+    if (!user) return res.status(404).json({ success: false, msg: "User nahi mila" });
 
     user.isApproved = !user.isApproved;
     await user.save();
 
     const isApproved = user.isApproved;
-
     const status = isApproved ? "APPROVED" : "UNVERIFIED";
     const color = isApproved ? "#27ae60" : "#e74c3c";
     const statusEmoji = isApproved ? "✅" : "❌";
-
     const subject = `Account Status: ${status} ${statusEmoji}`;
 
     let sellerIdBlock = "";
     if (isApproved && user.sellerId) {
-      sellerIdBlock = `
-        <div style="margin-top:15px; padding:12px; border:2px dashed #27ae60; border-radius:8px; text-align:center;">
-          <p style="margin:0; font-size:14px;">Your Seller ID</p>
-          <h2 style="margin:5px 0; color:#27ae60;">${user.sellerId}</h2>
-          <p style="font-size:12px; color:#666;">Keep this ID safe for tracking & support</p>
-        </div>
-      `;
+      sellerIdBlock = `<div style="margin-top:15px;padding:12px;border:2px dashed #27ae60;border-radius:8px;text-align:center;"><p style="margin:0;font-size:14px;">Your Seller ID</p><h2 style="margin:5px 0;color:#27ae60;">${user.sellerId}</h2><p style="font-size:12px;color:#666;">Keep this ID safe for tracking & support</p></div>`;
     }
 
     const message = isApproved
-      ? `
-        <p>🎉 Congratulations <b>${user.name}</b>,</p>
-        <p>Your account has been <b style="color:${color};">approved</b> successfully.</p>
-        <p>You can now access all platform features without restrictions.</p>
+      ? `<p>🎉 Congratulations <b>${user.name}</b>,</p><p>Your account has been <b style="color:${color};">approved</b> successfully.</p><p>You can now access all platform features without restrictions.</p>${sellerIdBlock}`
+      : `<p>⚠️ Hello <b>${user.name}</b>,</p><p>Your account has been marked as <b style="color:${color};">unverified</b>.</p><p>Some features may be restricted until verification is completed again.</p>`;
 
-        ${sellerIdBlock}  <!-- 🔥 HERE -->
-      `
-      : `
-        <p>⚠️ Hello <b>${user.name}</b>,</p>
-        <p>Your account has been marked as <b style="color:${color};">unverified</b>.</p>
-        <p>Some features may be restricted until verification is completed again.</p>
-      `;
+    const body = `${message}<div style="margin-top:15px;padding:12px;border-left:4px solid ${color};background:${color}15;border-radius:6px;"><b>Current Status: ${status} ${statusEmoji}</b></div><p style="margin-top:15px;">If you have any query, you can contact our support team.</p>`;
 
-    const body = `
-      ${message}
+    try {
+      await sendNotificationEmail(user.email, subject, "Seller Account Update", body, color);
+    } catch (mailErr) {
+      console.error("MAIL ERROR:", mailErr);
+    }
 
-      <div style="margin-top:15px; padding:12px; border-left:4px solid ${color}; background:${color}15; border-radius:6px;">
-        <b>Current Status: ${status} ${statusEmoji}</b>
-      </div>
-
-      <p style="margin-top:15px;">
-        If you have any query, you can contact our support team.
-      </p>
-    `;
-
-    await sendNotificationEmail(user.email, subject, "Seller Account Update", body, color);
-
-    res.json({
+    return res.status(200).json({
       success: true,
       msg: `Account ${status} ${statusEmoji}`,
+      isApproved,
+      mailNote: "Status updated successfully",
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Server Error" });
+    console.error("Toggle Verification Error:", err);
+    return res.status(500).json({ success: false, msg: "Server Error" });
   }
 };
-
 exports.rejectSellerDocs = async (req, res) => {
   try {
     const { userId, email, reason } = req.body;
