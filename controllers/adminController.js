@@ -328,15 +328,19 @@ exports.updatePayoutStatus = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
     }
 
+    // 🔥 1. AGGREGATION (SAFE + CORRECT)
     const summary = await Order.aggregate([
       {
         $match: {
           sellerEmail: email,
           status: "success",
-          payoutStatus: { $regex: /^pending$/i },
+          payoutStatus: /pending/i,
         },
       },
       {
@@ -345,7 +349,6 @@ exports.updatePayoutStatus = async (req, res) => {
           sellerName: { $first: "$sellerName" },
           quantity: { $sum: 1 },
           courseTotal: { $sum: "$amount" },
-
           totalSellerEarnings: { $sum: "$sellerEarnings" },
           totalAdminCommission: { $sum: "$platformCommission" },
         },
@@ -379,12 +382,26 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     ]);
 
-    if (summary.length === 0) {
-      return res.status(404).json({ success: false, message: "No pending orders found." });
+    // 🔥 2. NO DATA CHECK
+    if (!summary || summary.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No pending orders found.",
+      });
     }
 
+    const result = summary[0];
+
+    // 🔥 3. SAFE COURSES
+    const safeCourses = Array.isArray(result?.courses) ? result.courses : [];
+
+    // 🔥 4. UPDATE DB (ONLY IF DATA EXISTS)
     await Order.updateMany(
-      { sellerEmail: email, status: "success", payoutStatus: "Pending" },
+      {
+        sellerEmail: email,
+        status: "success",
+        payoutStatus: /pending/i,
+      },
       {
         $set: {
           payoutStatus: "Completed",
@@ -394,19 +411,31 @@ exports.updatePayoutStatus = async (req, res) => {
       },
     );
 
-    await sendEmail({
-      to: summary[0].sellerEmail,
-      subject: `💰 Payout Processed: ₹${summary[0].netPayout}`,
-      html: payoutTemplate(summary[0], summary[0].courses),
-    }).catch((err) => console.log("Email Error:", err.message));
+    // 🔥 5. SEND EMAIL (SAFE + NO CRASH)
+    try {
+      await sendEmail({
+        to: result.sellerEmail,
+        subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
+        html: payoutTemplate(result, safeCourses),
+      });
 
-    res.status(200).json({
+      console.log("✅ Payout email sent to:", result.sellerEmail);
+    } catch (err) {
+      console.error("❌ Email Error:", err.response?.data || err.message);
+    }
+
+    // 🔥 6. RESPONSE
+    return res.status(200).json({
       success: true,
-      message: "Payout updated using DB records & Mail sent!",
+      message: "Payout updated + email sent successfully",
+      data: result,
     });
   } catch (error) {
-    console.error("Payout Update Error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("❌ Payout Update Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
