@@ -1,6 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const reviewController = require("../controllers/reviewController");
+const {
+  bulkHideReviews,
+  bulkShowReviews,
+  bulkDeleteReviews,
+  bulkReplyReviews,
+  reviewController,
+} = require("../controllers/reviewController");
 
 // --- User Routes (Pehle se jo hain) ---
 router.post("/add", reviewController.postReview);
@@ -31,4 +37,8 @@ exports.getTotalReviewCount = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
+router.put("/bulk-hide", bulkHideReviews);
+router.put("/bulk-show", bulkShowReviews);
+router.delete("/bulk-delete", bulkDeleteReviews);
+router.put("/bulk-reply", bulkReplyReviews);
 module.exports = router;
