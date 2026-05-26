@@ -196,23 +196,11 @@ const cleanReviewIds = (reviewIds = []) => {
 exports.bulkHideReviews = async (req, res) => {
   try {
     const ids = cleanReviewIds(req.body.reviewIds);
-
-    if (!ids.length) {
-      return res.status(400).json({
-        success: false,
-        msg: "Valid review IDs required",
-      });
-    }
+    if (!ids.length) return res.status(400).json({ success: false, msg: "Valid review IDs required" });
 
     const result = await Review.updateMany(
       { _id: { $in: ids } },
-      {
-        $set: {
-          isHidden: true,
-          hidden: true,
-          updatedAt: new Date(),
-        },
-      },
+      { $set: { status: "hidden", updatedAt: new Date() } },
     );
 
     return res.status(200).json({
@@ -222,35 +210,18 @@ exports.bulkHideReviews = async (req, res) => {
       modifiedCount: result.modifiedCount || 0,
     });
   } catch (err) {
-    console.error("Bulk Hide Reviews Error:", err);
-    return res.status(500).json({
-      success: false,
-      msg: "Bulk hide failed",
-      error: err.message,
-    });
+    return res.status(500).json({ success: false, msg: "Bulk hide failed", error: err.message });
   }
 };
 
 exports.bulkShowReviews = async (req, res) => {
   try {
     const ids = cleanReviewIds(req.body.reviewIds);
-
-    if (!ids.length) {
-      return res.status(400).json({
-        success: false,
-        msg: "Valid review IDs required",
-      });
-    }
+    if (!ids.length) return res.status(400).json({ success: false, msg: "Valid review IDs required" });
 
     const result = await Review.updateMany(
       { _id: { $in: ids } },
-      {
-        $set: {
-          isHidden: false,
-          hidden: false,
-          updatedAt: new Date(),
-        },
-      },
+      { $set: { status: "approved", updatedAt: new Date() } },
     );
 
     return res.status(200).json({
@@ -260,12 +231,7 @@ exports.bulkShowReviews = async (req, res) => {
       modifiedCount: result.modifiedCount || 0,
     });
   } catch (err) {
-    console.error("Bulk Show Reviews Error:", err);
-    return res.status(500).json({
-      success: false,
-      msg: "Bulk show failed",
-      error: err.message,
-    });
+    return res.status(500).json({ success: false, msg: "Bulk show failed", error: err.message });
   }
 };
 
