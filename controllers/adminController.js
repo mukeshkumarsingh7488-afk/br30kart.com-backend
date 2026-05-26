@@ -12,6 +12,7 @@ const {
   rejectDocsTemplate,
   sellerAlertTemplate,
   sellerAlertTemplate2,
+  sellerStatusTemplate,
 } = require("../utils/emailTemplate");
 
 exports.getAllSellersDocs = async (req, res) => {
@@ -548,7 +549,10 @@ exports.toggleVerification = async (req, res) => {
     const status = isApproved ? "APPROVED" : "UNVERIFIED";
     const statusEmoji = isApproved ? "✅" : "❌";
     const subject = `Account Status: ${status} ${statusEmoji}`;
-    const html = approvalTemplate(user, isApproved);
+    const html = sellerStatusTemplate({
+      name: user.name,
+      isApproved,
+    });
 
     try {
       await sendEmail({
