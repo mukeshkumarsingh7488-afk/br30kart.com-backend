@@ -41,12 +41,10 @@ exports.postReview = async (req, res) => {
 
 exports.getTopReviews = async (req, res) => {
   try {
-    // ✅ Only approved reviews count for public page
     const totalReviewCount = await Review.countDocuments({
       status: "approved",
     });
 
-    // ✅ Fetch only approved reviews
     const reviews = await Review.aggregate([
       {
         $match: {
@@ -54,29 +52,10 @@ exports.getTopReviews = async (req, res) => {
         },
       },
 
-      // ✅ Safe ObjectId conversion
-      {
-        $addFields: {
-          userObjectId: {
-            $cond: {
-              if: {
-                $regexMatch: {
-                  input: "$userId",
-                  regex: /^[0-9a-fA-F]{24}$/,
-                },
-              },
-              then: { $toObjectId: "$userId" },
-              else: null,
-            },
-          },
-        },
-      },
-
-      // ✅ Join user data
       {
         $lookup: {
           from: "users",
-          localField: "userObjectId",
+          localField: "userId",
           foreignField: "_id",
           as: "userDetails",
         },
@@ -89,44 +68,27 @@ exports.getTopReviews = async (req, res) => {
         },
       },
 
-      // ✅ Latest reviews first
       {
         $sort: {
           createdAt: -1,
         },
       },
-
-      // ✅ Send only required fields
-      {
-        $project: {
-          username: 1,
-          comment: 1,
-          rating: 1,
-          adminReply: 1,
-          createdAt: 1,
-          status: 1,
-
-          "userDetails.name": 1,
-          "userDetails.profilePic": 1,
-        },
-      },
     ]);
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      totalCount: totalReviewCount || 0,
-      reviews: reviews || [],
+      totalCount: totalReviewCount,
+      reviews,
     });
   } catch (err) {
     console.error("Aggregation Error:", err);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       error: err.message,
     });
   }
 };
-
 exports.getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find().populate("userId", "name profilePic").sort({ createdAt: -1 });
