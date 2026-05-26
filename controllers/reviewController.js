@@ -177,6 +177,15 @@ exports.handleAutoReply = async (req, res) => {
   }
 };
 
+exports.getTotalReviewCount = async (req, res) => {
+  try {
+    const totalCount = await Review.countDocuments();
+    res.status(200).json({ success: true, count: totalCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 const cleanReviewIds = (reviewIds = []) => {
   if (!Array.isArray(reviewIds)) return [];
   return [...new Set(reviewIds)]
