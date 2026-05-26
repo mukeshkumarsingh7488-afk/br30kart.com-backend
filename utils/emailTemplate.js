@@ -41,7 +41,7 @@ const sendEmail = async (options) => {
           "api-key": BREVO_KEY,
           "content-type": "application/json",
         },
-      },
+      }
     );
 
     console.log("✅ Email sent successfully via Brevo");
@@ -195,4 +195,3 @@ module.exports = {
   sellerAlertTemplate2,
   sellerStatusTemplate,
 };
-k;
