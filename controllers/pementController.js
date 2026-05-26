@@ -2,13 +2,10 @@ const axios = require("axios");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const User = require("../models/User");
-const Product = require("../models/Product");
+const Course = require("../models/Product");
 const Order = require("../models/order");
 const Coupon = require("../models/coupon");
-const {
-  getSupportFailureTemplate,
-  getUserFailureTemplate,
-} = require("../utils/emailTemplate");
+const { getSupportFailureTemplate, getUserFailureTemplate } = require("../utils/emailTemplate");
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -38,13 +35,10 @@ exports.createOrder = async (req, res) => {
       if (validCoupon) {
         const now = new Date();
         if (validCoupon.expiryDate && now > validCoupon.expiryDate) {
-          return res
-            .status(400)
-            .json({ success: false, msg: "Coupon expire ho chuka hai" });
+          return res.status(400).json({ success: false, msg: "Coupon expire ho chuka hai" });
         }
 
-        const discountAmount =
-          (finalPrice * Number(validCoupon.discount)) / 100;
+        const discountAmount = (finalPrice * Number(validCoupon.discount)) / 100;
         finalPrice -= discountAmount;
         isApplied = true;
         appliedCouponData = cleanCode;
@@ -87,18 +81,10 @@ exports.createOrder = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
   try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      courseId,
-      amount,
-    } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, courseId, amount } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Payment details missing!" });
+      return res.status(400).json({ success: false, msg: "Payment details missing!" });
     }
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
@@ -118,20 +104,13 @@ exports.verifyPayment = async (req, res) => {
       paymentId: razorpay_payment_id,
     });
     if (existingOrder) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Payment already processed!" });
+      return res.status(400).json({ success: false, msg: "Payment already processed!" });
     }
 
-    const [user, course] = await Promise.all([
-      User.findById(req.user.id),
-      Course.findById(courseId),
-    ]);
+    const [user, course] = await Promise.all([User.findById(req.user.id), Product.findById(courseId)]);
 
     if (!user || !course) {
-      return res
-        .status(404)
-        .json({ success: false, msg: "User or Course not found" });
+      return res.status(404).json({ success: false, msg: "User or Course not found" });
     }
 
     const orderAmount = Number(amount);
@@ -203,7 +182,7 @@ exports.handlePaymentFailure = async (req, res) => {
 
     const user = await User.findById(req.user.id);
 
-    const course = await Course.findById(courseId);
+    const course = await Product.findById(courseId);
 
     if (!user || !course) {
       return res.status(404).json({
@@ -212,8 +191,7 @@ exports.handlePaymentFailure = async (req, res) => {
       });
     }
 
-    const supportEmail =
-      process.env.SUPPORT_EMAIL_USER?.trim() || process.env.BREVO_EMAIL.trim();
+    const supportEmail = process.env.SUPPORT_EMAIL_USER?.trim() || process.env.BREVO_EMAIL.trim();
 
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
