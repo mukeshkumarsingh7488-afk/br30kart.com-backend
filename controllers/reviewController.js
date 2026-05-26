@@ -46,7 +46,7 @@ exports.getTopReviews = async (req, res) => {
     const reviews = await Review.aggregate([
       {
         $match: {
-          $or: [{ status: "approved" }, { status: { $exists: false } }],
+          status: "approved",
         },
       },
       {
