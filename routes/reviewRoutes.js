@@ -2,37 +2,44 @@ const express = require("express");
 const router = express.Router();
 const reviewController = require("../controllers/reviewController");
 
-// --- User Routes (Pehle se jo hain) ---
+// --- User Routes ---
 router.post("/add", reviewController.postReview);
 router.get("/top10", reviewController.getTopReviews);
 
-// --- Admin Routes---
-// 1. Saare reviews dekhne ke liye (Admin Panel mein)
+// --- Admin Routes ---
+
+// All Reviews
 router.get("/all", reviewController.getAllReviews);
 
-// 2. Review ko update karne ke liye (Reply dene ya Status change karne ke liye)
+// Update Review / Reply
 router.put("/update/:id", reviewController.updateReview);
 
-// 3. Review ko hide/show karne ke liye (Aap isse status badal sakte ho)
+// Hide / Show Review
 router.patch("/status/:id", reviewController.toggleReviewStatus);
 
-// 4. Review ko permanent delete karne ke liye
+// Delete Single Review
 router.delete("/delete/:id", reviewController.deleteReview);
 
-// auto replay review
+// Auto Reply
 router.post("/auto-reply", reviewController.handleAutoReply);
 
-// review total count inline top reviews
-exports.getTotalReviewCount = async (req, res) => {
-  try {
-    const totalCount = await Review.countDocuments();
-    res.status(200).json({ success: true, count: totalCount });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-};
-router.put("/bulk-hide", bulkHideReviews);
-router.put("/bulk-show", bulkShowReviews);
-router.delete("/bulk-delete", bulkDeleteReviews);
-router.put("/bulk-reply", bulkReplyReviews);
+// Total Review Count
+router.get("/total-count", reviewController.getTotalReviewCount);
+
+// ===============================
+// BULK REVIEW ACTION ROUTES
+// ===============================
+
+// Bulk Hide
+router.put("/bulk-hide", reviewController.bulkHideReviews);
+
+// Bulk Show
+router.put("/bulk-show", reviewController.bulkShowReviews);
+
+// Bulk Delete
+router.delete("/bulk-delete", reviewController.bulkDeleteReviews);
+
+// Bulk Reply
+router.put("/bulk-reply", reviewController.bulkReplyReviews);
+
 module.exports = router;
