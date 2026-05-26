@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { reviewController } = require("../controllers/reviewController");
+const reviewController = require("../controllers/reviewController");
 
 // --- User Routes (Pehle se jo hain) ---
 router.post("/add", reviewController.postReview);
