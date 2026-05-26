@@ -41,41 +41,89 @@ exports.postReview = async (req, res) => {
 
 exports.getTopReviews = async (req, res) => {
   try {
-    const totalReviewCount = await Review.countDocuments();
+    // ✅ Only approved reviews count for public page
+    const totalReviewCount = await Review.countDocuments({
+      status: "approved",
+    });
 
+    // ✅ Fetch only approved reviews
     const reviews = await Review.aggregate([
       {
         $match: {
           status: "approved",
         },
       },
+
+      // ✅ Safe ObjectId conversion
       {
         $addFields: {
-          userId: { $toObjectId: "$userId" },
+          userObjectId: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: "$userId",
+                  regex: /^[0-9a-fA-F]{24}$/,
+                },
+              },
+              then: { $toObjectId: "$userId" },
+              else: null,
+            },
+          },
         },
       },
+
+      // ✅ Join user data
       {
         $lookup: {
           from: "users",
-          localField: "userId",
+          localField: "userObjectId",
           foreignField: "_id",
           as: "userDetails",
         },
       },
-      { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
+
       {
-        $sort: { createdAt: -1 },
+        $unwind: {
+          path: "$userDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // ✅ Latest reviews first
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+
+      // ✅ Send only required fields
+      {
+        $project: {
+          username: 1,
+          comment: 1,
+          rating: 1,
+          adminReply: 1,
+          createdAt: 1,
+          status: 1,
+
+          "userDetails.name": 1,
+          "userDetails.profilePic": 1,
+        },
       },
     ]);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       totalCount: totalReviewCount || 0,
       reviews: reviews || [],
     });
   } catch (err) {
     console.error("Aggregation Error:", err);
-    res.status(500).json({ success: false, error: err.message });
+
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
