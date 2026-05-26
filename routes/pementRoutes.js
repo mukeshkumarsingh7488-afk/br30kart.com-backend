@@ -3,7 +3,7 @@ const router = express.Router();
 
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
-
+const User = require("../models/User");
 const Order = require("../models/order");
 const Product = require("../models/Product");
 const pementController = require("../controllers/pementController");
@@ -15,77 +15,9 @@ const razorpay = new Razorpay({
 });
 
 // ✅ CREATE ORDER
-router.post("/create-order", async (req, res) => {
-  try {
-    const { amount, productId, buyerEmail, sellerEmail } = req.body;
-
-    const options = {
-      amount: Number(amount) * 100,
-      currency: "INR",
-      receipt: "rcpt_" + Date.now(),
-    };
-
-    const order = await razorpay.orders.create(options);
-
-    res.json({
-      orderId: order.id,
-      amount: order.amount,
-      productId,
-      buyerEmail,
-      sellerEmail,
-      key: process.env.RAZORPAY_KEY_ID,
-    });
-  } catch (err) {
-    console.error("Order Creation Error:", err);
-    res.status(500).json({ error: "Order create failed" });
-  }
-});
-
-// ✅ VERIFY PAYMENT
-router.post("/verify-payment", async (req, res) => {
-  try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      productId,
-      buyerEmail,
-      sellerEmail,
-    } = req.body;
-
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body)
-      .digest("hex");
-
-    if (expectedSignature === razorpay_signature) {
-      const productData = await Product.findById(productId);
-
-      const sellerData = await User.findOne({ email: sellerEmail });
-
-      await Order.create({
-        productId: productId,
-        productName: productData ? productData.productName : "Unknown Course",
-        amount: productData ? productData.amount : 0,
-        sellerEmail: sellerEmail,
-        sellerName: sellerData ? sellerData.name : "Unknown Seller",
-        customerEmail: buyerEmail,
-        paymentId: razorpay_payment_id,
-        orderId: razorpay_order_id,
-        status: "success",
-        payoutStatus: "Pending",
-      });
-
-      res.json({ success: true, message: "Payment Verified & Order Saved" });
-    } else {
-      res.status(400).json({ success: false, message: "Invalid Signature" });
-    }
-  } catch (err) {
-    console.error("Verification Error:", err);
-    res.status(500).json({ error: "Verification failed" });
-  }
-});
+router.post("/create-order", pementController.createOrder);
+router.post("/verify-payment", pementController.verifyPayment);
+router.post("/payment-failure", pementController.handlePaymentFailure);
 
 // ✅ MY COURSES
 router.get("/my-courses/:email", async (req, res) => {

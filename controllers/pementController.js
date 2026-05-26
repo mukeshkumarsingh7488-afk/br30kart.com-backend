@@ -2,11 +2,10 @@ const axios = require("axios");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const User = require("../models/User");
-const Course = require("../models/Product");
+const Product = require("../models/Product");
 const Order = require("../models/order");
 const Coupon = require("../models/coupon");
 const { getSupportFailureTemplate, getUserFailureTemplate } = require("../utils/emailTemplate");
-
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -163,13 +162,23 @@ exports.verifyPayment = async (req, res) => {
 };
 
 exports.handlePaymentFailure = async (req, res) => {
+  console.log("🚨 PAYMENT FAILURE API HIT");
+  console.log("BODY:", req.body);
+
   try {
-    const { courseId, reason } = req.body;
+    const { courseId, buyerEmail, reason } = req.body;
 
     if (!courseId) {
       return res.status(400).json({
         success: false,
         msg: "Course ID is required",
+      });
+    }
+
+    if (!buyerEmail) {
+      return res.status(400).json({
+        success: false,
+        msg: "Buyer email is required",
       });
     }
 
@@ -180,8 +189,7 @@ exports.handlePaymentFailure = async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.user.id);
-
+    const user = await User.findOne({ email: buyerEmail });
     const course = await Product.findById(courseId);
 
     if (!user || !course) {
@@ -200,13 +208,9 @@ exports.handlePaymentFailure = async (req, res) => {
           name: "SYSTEM ALERT",
           email: process.env.BREVO_EMAIL.trim(),
         },
-        to: [
-          {
-            email: supportEmail,
-          },
-        ],
+        to: [{ email: supportEmail }],
         subject: `⚠️ Payment Failed: ${user.name}`,
-        htmlContent: getSupportFailureTemplate(user, course, reason),
+        htmlContent: getSupportFailureTemplate(user, course, reason || "Payment Failed / User closed payment popup"),
       },
       {
         headers: {
@@ -224,13 +228,9 @@ exports.handlePaymentFailure = async (req, res) => {
           name: "BR30 TRADER Support",
           email: process.env.BREVO_EMAIL.trim(),
         },
-        to: [
-          {
-            email: user.email,
-          },
-        ],
+        to: [{ email: user.email }],
         subject: `Need help with ${course.title}?`,
-        htmlContent: getUserFailureTemplate(user, course, reason),
+        htmlContent: getUserFailureTemplate(user, course, reason || "Payment Failed / User closed payment popup"),
       },
       {
         headers: {
@@ -246,7 +246,7 @@ exports.handlePaymentFailure = async (req, res) => {
       msg: "Failure alerts sent!",
     });
   } catch (err) {
-    console.error("❌ FAILURE ALERT ERROR:", err.response?.data || err.message);
+    console.error("❌ FAILURE ALERT ERROR FULL:", err.response?.data || err.message);
 
     return res.status(500).json({
       success: false,
