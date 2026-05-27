@@ -87,10 +87,7 @@ exports.verifyPayment = async (req, res) => {
     }
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSign = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(sign.toString())
-      .digest("hex");
+    const expectedSign = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(sign.toString()).digest("hex");
 
     if (razorpay_signature !== expectedSign) {
       return res.status(400).json({
@@ -218,14 +215,14 @@ exports.handlePaymentFailure = async (req, res) => {
           "api-key": process.env.BREVO_SMTP_KEY.trim(),
           "content-type": "application/json",
         },
-      },
+      }
     );
 
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "BR30 TRADER Support",
+          name: "BR30 Support",
           email: process.env.BREVO_EMAIL.trim(),
         },
         to: [{ email: user.email }],
@@ -238,7 +235,7 @@ exports.handlePaymentFailure = async (req, res) => {
           "api-key": process.env.BREVO_SMTP_KEY.trim(),
           "content-type": "application/json",
         },
-      },
+      }
     );
 
     return res.status(200).json({
