@@ -75,7 +75,7 @@ exports.register = async (req, res) => {
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "BR30 Support Terminal",
+          name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
 
@@ -281,7 +281,7 @@ exports.forgotPassword = async (req, res) => {
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "BR30 Kart Support",
+          name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
 
@@ -448,7 +448,7 @@ exports.sendOTP = async (req, res) => {
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "BR30Kart Support",
+          name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
 

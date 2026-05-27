@@ -202,7 +202,7 @@ exports.handlePaymentFailure = async (req, res) => {
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "SYSTEM ALERT",
+          name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
 
@@ -230,7 +230,7 @@ exports.handlePaymentFailure = async (req, res) => {
       "https://api.brevo.com/v3/smtp/email",
       {
         sender: {
-          name: "BR30 Support",
+          name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
 

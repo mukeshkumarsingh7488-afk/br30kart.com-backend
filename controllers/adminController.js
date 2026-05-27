@@ -411,7 +411,7 @@ exports.updatePayoutStatus = async (req, res) => {
       to: result.sellerEmail,
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Payout Support",
+        name: "BR30 Support Team",
       },
 
       subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
@@ -471,13 +471,13 @@ exports.sendPayoutEmail = async (data) => {
 
     const brevoPayload = {
       sender: {
-        name: "BR30 Kart Payout",
+        name: "BR30 Kart",
         email: BREVO_EMAIL,
       },
 
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Payout Support",
+        name: "BR30 Support Team",
       },
 
       to: [
