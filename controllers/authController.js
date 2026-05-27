@@ -4,13 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const cloudinary = require("cloudinary").v2;
-const {
-  sendEmail,
-  registerOtpTemplate,
-  forgotPasswordTemplate,
-  sellerForgotPasswordTemplate,
-  sellerOtpTemplate,
-} = require("../utils/emailTemplate");
+const { sendEmail, registerOtpTemplate, forgotPasswordTemplate, sellerForgotPasswordTemplate, sellerOtpTemplate } = require("../utils/emailTemplate");
 
 exports.register = async (req, res) => {
   try {
@@ -84,12 +78,20 @@ exports.register = async (req, res) => {
           name: "BR30 Support Terminal",
           email: process.env.BREVO_EMAIL.trim(),
         },
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         to: [
           {
             email: normalizedEmail,
           },
         ],
+
         subject: "🔐 Verify Your Account - OTP Security Token",
+
         htmlContent: htmlTemplateContent,
       },
       {
@@ -98,7 +100,7 @@ exports.register = async (req, res) => {
           "api-key": process.env.BREVO_SMTP_KEY.trim(),
           "content-type": "application/json",
         },
-      },
+      }
     );
 
     if (brevoResponse.status === 200 || brevoResponse.status === 201) {
@@ -282,12 +284,20 @@ exports.forgotPassword = async (req, res) => {
           name: "BR30 Kart Support",
           email: process.env.BREVO_EMAIL.trim(),
         },
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         to: [
           {
             email: normalizedEmail,
           },
         ],
+
         subject: isSeller ? "Seller Password Reset OTP" : "Password Reset OTP",
+
         htmlContent: html,
       },
       {
@@ -296,7 +306,7 @@ exports.forgotPassword = async (req, res) => {
           "api-key": process.env.BREVO_SMTP_KEY.trim(),
           "content-type": "application/json",
         },
-      },
+      }
     );
 
     if (brevoResponse.status === 200 || brevoResponse.status === 201) {
@@ -441,12 +451,20 @@ exports.sendOTP = async (req, res) => {
           name: "BR30Kart Support",
           email: process.env.BREVO_EMAIL.trim(),
         },
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         to: [
           {
             email: normalizedEmail,
           },
         ],
+
         subject,
+
         htmlContent: sellerOtpTemplate(otp, user.name || "User"),
       },
       {
@@ -455,7 +473,7 @@ exports.sendOTP = async (req, res) => {
           "api-key": process.env.BREVO_SMTP_KEY.trim(),
           "content-type": "application/json",
         },
-      },
+      }
     );
 
     if (brevoResponse.status === 200 || brevoResponse.status === 201) {
@@ -549,9 +567,7 @@ exports.sellerRegister = async (req, res) => {
     console.log(`✅ Application updated for: ${email}. isRejected reset to false.`);
 
     res.status(201).json({
-      msg: isAdmin
-        ? "Master Admin Registered! 🚀"
-        : "Application Submitted Successfully! Purana data update kar diya gaya hai. ⏳",
+      msg: isAdmin ? "Master Admin Registered! 🚀" : "Application Submitted Successfully! Purana data update kar diya gaya hai. ⏳",
     });
   } catch (err) {
     console.error("🔥 Registration Final Error:", err);

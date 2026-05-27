@@ -4,16 +4,7 @@ const Order = require("../models/order");
 const nodemailer = require("nodemailer");
 const Product = require("../models/Product");
 require("dotenv").config();
-const {
-  sendEmail,
-  payoutTemplate,
-  rejectSellerTemplate,
-  approvalTemplate,
-  rejectDocsTemplate,
-  sellerAlertTemplate,
-  sellerAlertTemplate2,
-  sellerStatusTemplate,
-} = require("../utils/emailTemplate");
+const { sendEmail, payoutTemplate, rejectSellerTemplate, approvalTemplate, rejectDocsTemplate, sellerAlertTemplate, sellerAlertTemplate2, sellerStatusTemplate } = require("../utils/emailTemplate");
 
 exports.getAllSellersDocs = async (req, res) => {
   try {
@@ -53,10 +44,7 @@ exports.approveSeller = async (req, res) => {
 
     await User.findByIdAndUpdate(id, { isApproved: true });
 
-    console.log(
-      `%c✅ [SELLER APPROVED] Name: ${user.name} | Email: ${user.email}`,
-      "color: #2ecc71; font-weight: bold;",
-    );
+    console.log(`%c✅ [SELLER APPROVED] Name: ${user.name} | Email: ${user.email}`, "color: #2ecc71; font-weight: bold;");
 
     res.status(200).json({
       success: true,
@@ -403,7 +391,7 @@ exports.updatePayoutStatus = async (req, res) => {
           payoutDate: new Date(),
           mailTrack: "SUCCESS MAIL SENT",
         },
-      },
+      }
     );
 
     const courseRows = (result.courses || [])
@@ -413,7 +401,7 @@ exports.updatePayoutStatus = async (req, res) => {
             <td>${c.name} (x${c.count})</td>
             <td style="text-align:right;">₹${Number(c.total).toLocaleString("en-IN")}</td>
           </tr>
-        `,
+        `
       )
       .join("");
 
@@ -421,7 +409,13 @@ exports.updatePayoutStatus = async (req, res) => {
 
     await sendEmail({
       to: result.sellerEmail,
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Payout Support",
+      },
+
       subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
+
       html: emailHTML,
     });
 
@@ -465,7 +459,7 @@ exports.sendPayoutEmail = async (data) => {
           <td>${c.name} (x${c.count})</td>
           <td style="text-align:right;">₹${Number(c.total).toLocaleString("en-IN")}</td>
         </tr>
-      `,
+      `
           )
           .join("")
       : `
@@ -480,12 +474,20 @@ exports.sendPayoutEmail = async (data) => {
         name: "BR30 Kart Payout",
         email: BREVO_EMAIL,
       },
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Payout Support",
+      },
+
       to: [
         {
           email: recipientEmail,
         },
       ],
+
       subject: `💰 Payout Processed: ₹${Number(data.netPayout || 0).toLocaleString("en-IN")}`,
+
       htmlContent: payoutTemplate(data, courseRows),
     };
 
@@ -557,6 +559,12 @@ exports.toggleVerification = async (req, res) => {
     try {
       await sendEmail({
         to: user.email,
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         subject,
         html,
       });
@@ -590,7 +598,14 @@ exports.rejectSellerDocs = async (req, res) => {
 
     await sendEmail({
       to: email,
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Verification Support",
+      },
+
       subject: "Verification Result ❌ - Documents Rejected",
+
       html: emailBody,
     });
 
@@ -744,7 +759,14 @@ exports.rejectSeller = async (req, res) => {
 
     await sendEmail({
       to: email,
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Seller Support",
+      },
+
       subject: "❌ Action Required: Your Seller Application Status",
+
       html: htmlTemplate,
     });
 
@@ -773,7 +795,14 @@ exports.approveSeller = async (req, res) => {
 
     await sendEmail({
       to: seller.email,
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Seller Support",
+      },
+
       subject: "🎉 Congratulations! Your Seller Account is Approved",
+
       html: htmlContent,
     });
 
@@ -838,7 +867,14 @@ exports.sendSellerAlert = async (req, res) => {
 
     await sendEmail({
       to: email,
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Admin Support",
+      },
+
       subject: "⚠️ IMPORTANT: BR30 Admin Alert",
+
       html: sellerAlertTemplate(name, message),
     });
 
@@ -952,7 +988,14 @@ exports.sendSellerActionMail = async (req, res) => {
 
     await sendEmail({
       email: sellerEmail,
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Admin Support",
+      },
+
       subject: `🚨 Admin Action: ${reason} (${courseTitle || "Update"})`,
+
       html: htmlContent,
     });
 
@@ -1127,7 +1170,14 @@ exports.sendStudentAlert = async (req, res) => {
 
     await sendEmail({
       email: studentEmail,
+
+      replyTo: {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Student Support",
+      },
+
       subject: `🚨 Important Update: ${reason || "Admin Message"}`,
+
       html: htmlContent,
     });
 

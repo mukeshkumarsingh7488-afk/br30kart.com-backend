@@ -205,8 +205,16 @@ exports.handlePaymentFailure = async (req, res) => {
           name: "SYSTEM ALERT",
           email: process.env.BREVO_EMAIL.trim(),
         },
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         to: [{ email: supportEmail }],
+
         subject: `⚠️ Payment Failed: ${user.name}`,
+
         htmlContent: getSupportFailureTemplate(user, course, reason || "Payment Failed / User closed payment popup"),
       },
       {
@@ -225,8 +233,16 @@ exports.handlePaymentFailure = async (req, res) => {
           name: "BR30 Support",
           email: process.env.BREVO_EMAIL.trim(),
         },
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         to: [{ email: user.email }],
+
         subject: `Need help with ${course.title}?`,
+
         htmlContent: getUserFailureTemplate(user, course, reason || "Payment Failed / User closed payment popup"),
       },
       {

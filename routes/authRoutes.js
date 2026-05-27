@@ -21,12 +21,7 @@ router.post("/reset-password", authController.resetPassword);
 
 // 👤 --- USER PROFILE MANAGEMENT ---
 router.get("/profile", auth, authController.getProfile);
-router.put(
-  "/update-profile",
-  auth,
-  upload.single("profilePic"),
-  authController.updateProfile,
-);
+router.put("/update-profile", auth, upload.single("profilePic"), authController.updateProfile);
 
 // 🏪 --- 🔥 SELLER ONBOARDING SYSTEM (2026 REFACTORED) ---
 
@@ -44,15 +39,12 @@ router.post(
     { name: "aadharBack", maxCount: 1 },
     { name: "bankDoc", maxCount: 1 },
   ]),
-  authController.sellerRegister,
+  authController.sellerRegister
 );
 
 // 🏆 UPGRADED ROUTE: Claim Certificate + Automatic Elite Mail
 router.post("/claim-certificate", auth, async (req, res) => {
-  console.log(
-    "🚀 [STEP 1] Certificate request received for User ID:",
-    req.user.id,
-  );
+  console.log("🚀 [STEP 1] Certificate request received for User ID:", req.user.id);
 
   try {
     // 1. User fetch
@@ -64,22 +56,13 @@ router.post("/claim-certificate", auth, async (req, res) => {
 
     // 2. ID Setup
     const fullName = req.body.fullName || user.name;
-    const certId =
-      user.certificateData?.certId ||
-      `BR30-${user._id.toString().substring(18).toUpperCase()}`;
+    const certId = user.certificateData?.certId || `BR30-${user._id.toString().substring(18).toUpperCase()}`;
     const courseName = req.body.courseName || "Elite Trading Masterclass";
 
-    console.log(
-      `🎓 [STEP 2] Generating PDF for: ${fullName} | CertNo: ${certId}`,
-    );
+    console.log(`🎓 [STEP 2] Generating PDF for: ${fullName} | CertNo: ${certId}`);
 
     // 3. Generate PDF Buffer
-    const pdfBuffer = await generateProfessionalCert(
-      user,
-      fullName,
-      certId,
-      courseName,
-    );
+    const pdfBuffer = await generateProfessionalCert(user, fullName, certId, courseName);
     console.log("✅ [STEP 3] PDF Buffer Created. Size:", pdfBuffer.length);
 
     // 4. Cloudinary Upload
@@ -91,7 +74,7 @@ router.post("/claim-certificate", auth, async (req, res) => {
           folder: "BR30_Certificates",
           public_id: `cert_${user._id}`,
         },
-        (err, result) => (result ? resolve(result) : reject(err)),
+        (err, result) => (result ? resolve(result) : reject(err))
       );
       stream.end(pdfBuffer);
     });
@@ -111,11 +94,10 @@ router.post("/claim-certificate", auth, async (req, res) => {
           "certificateData.mobile": req.body.mobile || "",
         },
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
-    if (updatedUser)
-      console.log("✅ [STEP 7] User Model updated successfully!");
+    if (updatedUser) console.log("✅ [STEP 7] User Model updated successfully!");
 
     // 6. SYNC CERTIFICATE MODEL
     await Certificate.findOneAndUpdate(
@@ -131,7 +113,7 @@ router.post("/claim-certificate", auth, async (req, res) => {
         upsert: true,
         returnDocument: "after",
         setDefaultsOnInsert: true,
-      },
+      }
     );
     console.log("✅ [STEP 8] Certificates Collection Synced!");
 
@@ -142,7 +124,14 @@ router.post("/claim-certificate", auth, async (req, res) => {
 
       const emailResult = await sendEmail({
         to: user.email,
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 VIP Support",
+        },
+
         subject: "🏆 CONGRATULATIONS! YOUR VIP CERTIFICATE IS READY",
+
         html: vipCertTemplate(user.name, uploadRes.secure_url, certId),
       });
 
@@ -161,9 +150,7 @@ router.post("/claim-certificate", auth, async (req, res) => {
   } catch (err) {
     console.error("❌ [CRITICAL ERROR]:", err.message);
     if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ success: false, msg: "Server Side Issue: " + err.message });
+      res.status(500).json({ success: false, msg: "Server Side Issue: " + err.message });
     }
   }
 });
