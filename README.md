@@ -53,36 +53,125 @@ https://YOUR-RENDER-BACKEND-URL.onrender.com
 
 ## 🛠️ Tech Stack
 
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JWT
-- Bcrypt.js
-- Nodemailer / Brevo SMTP
-- Razorpay
-- Cloudinary
-- Multer
-- CORS
-- Dotenv
-- Render
+### Backend
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)
 
 ---
 
-## 📁 Folder Structure
+### Authentication & Security
 
-```text
-BR30-Kart-Backend/
+![JWT](https://img.shields.io/badge/JWT_Authentication-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Bcrypt.js](https://img.shields.io/badge/Bcrypt.js-FF6B35?style=for-the-badge&logo=securityscorecard&logoColor=white)
+![CORS](https://img.shields.io/badge/CORS-0052CC?style=for-the-badge&logo=cors&logoColor=white)
+![Dotenv](https://img.shields.io/badge/Dotenv-ECD53F?style=for-the-badge&logo=dotenv&logoColor=black)
+
+---
+
+### Email & Notifications
+
+![Brevo](https://img.shields.io/badge/Brevo_SMTP-0099FF?style=for-the-badge)
+![Nodemailer](https://img.shields.io/badge/Nodemailer-34A853?style=for-the-badge&logo=gmail&logoColor=white)
+
+---
+
+### Payments
+
+![Razorpay](https://img.shields.io/badge/Razorpay-0C2451?style=for-the-badge&logo=razorpay&logoColor=white)
+
+---
+
+### Media & File Handling
+
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
+![Multer](https://img.shields.io/badge/Multer-FF9800?style=for-the-badge)
+
+---
+
+### Deployment
+
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+![MongoDB Atlas](https://img.shields.io/badge/MongoDB_Atlas-00ED64?style=for-the-badge&logo=mongodb&logoColor=white)
+
+---
+
+### Development Tools
+
+![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+
+---
+
+## 📁 Project Structure
+
+```bash
+BR30KART.COM-B
+│
+├── certificates/
 │
 ├── config/
+│   ├── cloudinary.js
+│   ├── db.js
+│   └── mail.js
+│
 ├── controllers/
+│   ├── adminController.js
+│   ├── authController.js
+│   ├── courseController.js
+│   ├── pementController.js
+│   ├── productController.js
+│   ├── reviewController.js
+│   └── sellerController.js
+│
+├── images/
+│
 ├── middleware/
+│   ├── admin.js
+│   ├── auth.js
+│   ├── multerCloudinary.js
+│   ├── sellerUpload.js
+│   ├── upload.js
+│   └── verifySeller.js
+│
 ├── models/
+│   ├── certificate.js
+│   ├── coupon.js
+│   ├── Notification.js
+│   ├── order.js
+│   ├── Product.js
+│   ├── Review.js
+│   ├── Seller.js
+│   └── User.js
+│
 ├── routes/
+│   ├── adminRoutes.js
+│   ├── authRoutes.js
+│   ├── courseRoutes.js
+│   ├── pementRoutes.js
+│   ├── productRoutes.js
+│   ├── reviewRoutes.js
+│   └── sellerRoutes.js
+│
 ├── utils/
-├── server.js
+│   ├── cronJobs.js
+│   ├── emailTemplate.js
+│   ├── generateProfessionalCert.js
+│   ├── reviewReply.js
+│   └── sendEmail.js
+│
+├── node_modules/
+│
+├── .env
+├── .gitignore
+├── autoReview.js
+├── package-lock.json
 ├── package.json
-└── README.md
+└── server.js
 ```
 
 ---
