@@ -127,7 +127,7 @@ router.post("/claim-certificate", auth, async (req, res) => {
 
         replyTo: {
           email: "support.br30trader@gmail.com",
-          name: "BR30 VIP Support",
+          name: "BR30 Support Team",
         },
 
         subject: "🏆 CONGRATULATIONS! YOUR VIP CERTIFICATE IS READY",

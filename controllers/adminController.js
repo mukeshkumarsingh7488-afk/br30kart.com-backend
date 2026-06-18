@@ -601,7 +601,7 @@ exports.rejectSellerDocs = async (req, res) => {
 
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Verification Support",
+        name: "BR30 Support Team",
       },
 
       subject: "Verification Result ❌ - Documents Rejected",
@@ -762,7 +762,7 @@ exports.rejectSeller = async (req, res) => {
 
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Seller Support",
+        name: "BR30 Support Team",
       },
 
       subject: "❌ Action Required: Your BR30 Kart Seller Application Status",
@@ -870,7 +870,7 @@ exports.sendSellerAlert = async (req, res) => {
 
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Admin Support",
+        name: "BR30 Support Team",
       },
 
       subject: "⚠️ IMPORTANT: BR30 Admin Alert",
@@ -991,7 +991,7 @@ exports.sendSellerActionMail = async (req, res) => {
 
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Admin Support",
+        name: "BR30 Support Team",
       },
 
       subject: `🚨 Admin Action: ${reason} (${courseTitle || "Update"})`,
@@ -1173,7 +1173,7 @@ exports.sendStudentAlert = async (req, res) => {
 
       replyTo: {
         email: "support.br30trader@gmail.com",
-        name: "BR30 Student Support",
+        name: "BR30 Support Team",
       },
 
       subject: `🚨 Important Update: ${reason || "Admin Message"}`,
