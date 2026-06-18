@@ -31,6 +31,12 @@ const sendEmail = async (options) => {
           name: "BR30 Kart",
           email: BREVO_EMAIL,
         },
+
+        replyTo: {
+          email: "support.br30trader@gmail.com",
+          name: "BR30 Support Team",
+        },
+
         to: [{ email: targetEmail.trim() }],
         subject: options.subject,
         htmlContent: emailHtmlContent,
