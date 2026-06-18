@@ -309,12 +309,11 @@ router.post("/purchase/:id", auth, productController.purchaseProduct);
 // 16. 📚 FETCH ENROLLED COURSES | @route: GET /api/orders/my-courses
 router.get("/my-courses", auth, productController.getMyProducts);
 
-// 17. 🛠️ ACTIVE SELLER DROPDOWN ACTIONS
-router.put("/toggle-visibility/:id", auth, productController.toggleVisibility);
-router.delete("/:id", auth, productController.deleteProduct);
-
-// 18. 🎬 FETCH WATCH PAGE DATA | @route: GET /api/products/watch/:id
+// 17. 🎬 FETCH WATCH PAGE DATA | @route: GET /api/products/watch/:id
 router.get("/:id", auth, productController.getProductById);
 
+// 18. 🛠️ ACTIVE SELLER DROPDOWN ACTIONS | @route: PUT & DELETE /api/products/action/:id
+router.delete("/:id", auth, productController.deleteProduct);
+router.put("/toggle-visibility/:id", auth, productController.toggleVisibility);
 // bell notification routes
 module.exports = router;
