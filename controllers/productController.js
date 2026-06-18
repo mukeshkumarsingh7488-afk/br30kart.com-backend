@@ -68,24 +68,21 @@ exports.addProduct = async (req, res) => {
 
     try {
       const notifData = new Notification({
-        title: "Naya Course Launch! 🔥",
+        title: "New Course Alert! 🚀",
         message: `${title} ab live hai. Abhi seekhna shuru karein!`,
         productId: newProduct._id,
       });
       await notifData.save();
       console.log("✅ Notification saved to DB");
     } catch (notifErr) {
-      console.error(
-        "❌ Notification DB Error (Non-critical):",
-        notifErr.message,
-      );
+      console.error("❌ Notification DB Error (Non-critical):", notifErr.message);
     }
 
     const io = req.app.get("socketio");
     if (io) {
       io.emit("new_notification", {
         type: "NEW_PRODUCT",
-        title: "Naya Course! 🔥",
+        title: "New Course! 🔥",
         message: `${title} ab live hai.`,
         productId: newProduct._id,
         productData: newProduct,
@@ -137,21 +134,19 @@ exports.updateCourse = async (req, res) => {
       {
         returnDocument: "after",
         runValidators: true,
-      },
+      }
     );
 
     if (!updatedCourse) {
       console.log("❌ DB mein ye ID nahi mili!");
-      return res
-        .status(404)
-        .json({ success: false, msg: "Course ID nahi mili" });
+      return res.status(404).json({ success: false, msg: "Course ID nahi mili" });
     }
 
     try {
       if (typeof Notification !== "undefined") {
         const notifData = new Notification({
           title: "Course Updated! 📢",
-          message: `${updatedCourse.title} mein kuch naya badlav hua hai.`,
+          message: `${updatedCourse.title} has been updated with new changes.`,
           productId: updatedCourse._id,
         });
         await notifData.save();
@@ -166,7 +161,7 @@ exports.updateCourse = async (req, res) => {
       io.emit("new_notification", {
         type: "UPDATE_PRODUCT",
         title: "Course Updated! 📢",
-        message: `${updatedCourse.title} में कुछ नया बदलाव हुआ है।`,
+        message: `${updatedCourse.title} has been updated with new changes.`,
         productId: updatedCourse._id,
         productData: updatedCourse,
       });
@@ -201,9 +196,7 @@ exports.purchaseCourse = async (req, res) => {
       user.purchasedCourses = [];
     }
 
-    const alreadyPurchased = user.purchasedCourses.some(
-      (c) => c.courseId.toString() === courseId.toString(),
-    );
+    const alreadyPurchased = user.purchasedCourses.some((c) => c.courseId.toString() === courseId.toString());
 
     if (alreadyPurchased) {
       return res.status(400).json({
@@ -268,9 +261,7 @@ exports.purchaseProduct = async (req, res) => {
       return res.status(404).json({ msg: "Course not found" });
     }
 
-    const alreadyBought = user.purchasedCourses.some(
-      (id) => id.toString() === courseId,
-    );
+    const alreadyBought = user.purchasedCourses.some((id) => id.toString() === courseId);
 
     if (alreadyBought) {
       return res.status(200).json({
@@ -300,9 +291,7 @@ exports.getMyProducts = async (req, res) => {
     if (!user) return res.status(404).json({ msg: "User nahi mila!" });
 
     const coursesWithStatus = user.purchasedCourses.map((course) => {
-      const isLocked = user.hiddenCourses.some(
-        (h) => h.courseId.toString() === course._id.toString(),
-      );
+      const isLocked = user.hiddenCourses.some((h) => h.courseId.toString() === course._id.toString());
 
       return {
         ...course._doc,
@@ -310,9 +299,7 @@ exports.getMyProducts = async (req, res) => {
       };
     });
 
-    console.log(
-      `📦 Sending ${coursesWithStatus.length} courses with lock status`,
-    );
+    console.log(`📦 Sending ${coursesWithStatus.length} courses with lock status`);
     res.json(coursesWithStatus);
   } catch (err) {
     console.error("❌ Fetch Error:", err);
@@ -327,9 +314,7 @@ exports.getProductById = async (req, res) => {
 
     const user = await User.findById(userId);
 
-    const isPurchased = user.purchasedCourses.some(
-      (id) => id.toString() === courseId,
-    );
+    const isPurchased = user.purchasedCourses.some((id) => id.toString() === courseId);
 
     if (!isPurchased) {
       return res.status(403).json({
@@ -367,9 +352,7 @@ exports.toggleVisibility = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, msg: "Product nahi mila bhai!" });
+      return res.status(404).json({ success: false, msg: "Product nahi mila bhai!" });
     }
 
     product.isVisible = product.isVisible === true ? false : true;

@@ -41,7 +41,7 @@ router.post("/upload", async (req, res) => {
     try {
       const Notification = require("../models/Notification"); // Model import yahan zaruri hai
       const notifData = new Notification({
-        title: "Naya Course Aa Gaya! 🔥",
+        title: "New Course Now Live! 🔥",
         message: `${title} ab live hai, abhi check karein.`,
         productId: newProduct._id,
         category: category,
@@ -57,7 +57,7 @@ router.post("/upload", async (req, res) => {
     if (io) {
       io.emit("new_notification", {
         type: "NEW_PRODUCT",
-        title: "Naya Course Aa Gaya! 🔥",
+        title: "New Course Now Live! 🔥",
         message: `${title} ab live है, अभी चेक करें।`,
         productId: newProduct._id,
         category: category,

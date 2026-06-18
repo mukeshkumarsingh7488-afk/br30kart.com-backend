@@ -28,11 +28,6 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    monthlyProfit: {
-      type: Number,
-      default: 0,
-    },
-
     completedLessons: [
       {
         type: String,
@@ -112,7 +107,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 userSchema.pre("save", async function () {

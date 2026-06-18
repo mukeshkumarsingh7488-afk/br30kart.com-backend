@@ -90,7 +90,7 @@ exports.register = async (req, res) => {
           },
         ],
 
-        subject: "🔐 Verify Your Account - OTP Security Token",
+        subject: "🔐 Your BR30 Kart OTP Verification Code",
 
         htmlContent: htmlTemplateContent,
       },

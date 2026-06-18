@@ -765,7 +765,7 @@ exports.rejectSeller = async (req, res) => {
         name: "BR30 Seller Support",
       },
 
-      subject: "❌ Action Required: Your Seller Application Status",
+      subject: "❌ Action Required: Your BR30 Kart Seller Application Status",
 
       html: htmlTemplate,
     });
@@ -801,7 +801,7 @@ exports.approveSeller = async (req, res) => {
         name: "BR30 Seller Support",
       },
 
-      subject: "🎉 Congratulations! Your Seller Account is Approved",
+      subject: "🎉 Congratulations! Your BR30 Kart Seller Account Has Been Approved",
 
       html: htmlContent,
     });

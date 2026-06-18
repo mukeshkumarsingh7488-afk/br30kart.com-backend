@@ -5,14 +5,7 @@ const ProductSchema = new mongoose.Schema(
     title: { type: String, required: true },
     category: {
       type: String,
-      enum: [
-        "Premium-Trading-Courses",
-        "Trading-Standard-Course",
-        "Crash-Course",
-        "Other",
-        "Bestseller",
-        "pdfs",
-      ],
+      enum: ["Premium-Trading-Courses", "Trading-Standard-Course", "Crash-Course", "Other", "Bestseller", "pdfs"],
       required: true,
     },
     price: { type: Number, required: true },
@@ -35,7 +28,7 @@ const ProductSchema = new mongoose.Schema(
     couponCreatedAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 ProductSchema.virtual("isDiscountValid").get(function () {
