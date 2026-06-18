@@ -16,21 +16,11 @@ router.post("/upload", async (req, res) => {
   try {
     console.log("📦 Incoming JSON Data:", req.body);
 
-    const {
-      title,
-      category,
-      price,
-      videoLink,
-      thumbnail,
-      sellerEmail,
-      sellerName,
-    } = req.body;
+    const { title, category, price, videoLink, thumbnail, sellerEmail, sellerName } = req.body;
 
     // 1. Security check
     if (!sellerEmail || sellerEmail === "null") {
-      return res
-        .status(400)
-        .json({ success: false, msg: "Seller Email missing!" });
+      return res.status(400).json({ success: false, msg: "Seller Email missing!" });
     }
 
     // 2. Product Save (Aapka Purana Logic)
@@ -98,9 +88,7 @@ router.get("/", async (req, res) => {
         const startTime = new Date(p.couponCreatedAt || p.createdAt).getTime();
         const expiryTime = startTime + 7 * 24 * 60 * 60 * 1000;
 
-        console.log(
-          `Product: ${p.title}, Expiry: ${new Date(expiryTime)}, Expired: ${now > expiryTime}`,
-        );
+        console.log(`Product: ${p.title}, Expiry: ${new Date(expiryTime)}, Expired: ${now > expiryTime}`);
 
         if (now > expiryTime) {
           p.discount = 0;
@@ -141,7 +129,7 @@ router.put("/update-discount/:id", async (req, res) => {
         discountSource: discountTag,
         couponCreatedAt: new Date(),
       },
-      { returnDocument: "after" },
+      { returnDocument: "after" }
     );
 
     res.json({ message: "Discount Updated!", data: updated });
@@ -241,11 +229,7 @@ router.put("/update/:id", upload.single("thumbnail"), async (req, res) => {
       updateFields.thumbnail = req.file.path;
     }
 
-    const updated = await Product.findByIdAndUpdate(
-      req.params.id,
-      { $set: updateFields },
-      { new: true, runValidators: true },
-    );
+    const updated = await Product.findByIdAndUpdate(req.params.id, { $set: updateFields }, { new: true, runValidators: true });
 
     if (!updated) return res.status(404).json({ msg: "Product nahi mila" });
 
@@ -267,7 +251,7 @@ router.post("/set-global-discount", async (req, res) => {
           discount: discount,
           discountSource: "global",
           couponCreatedAt: new Date(),
-        },
+        }
       );
     } else {
       await Product.updateMany(
@@ -275,7 +259,7 @@ router.post("/set-global-discount", async (req, res) => {
         {
           discount: 0,
           discountSource: null,
-        },
+        }
       );
     }
 
@@ -325,11 +309,12 @@ router.post("/purchase/:id", auth, productController.purchaseProduct);
 // 16. 📚 FETCH ENROLLED COURSES | @route: GET /api/orders/my-courses
 router.get("/my-courses", auth, productController.getMyProducts);
 
-// 17. 🎬 FETCH WATCH PAGE DATA | @route: GET /api/products/watch/:id
+// 17. 🛠️ ACTIVE SELLER DROPDOWN ACTIONS
+router.put("/toggle-visibility/:id", auth, productController.toggleVisibility);
+router.delete("/:id", auth, productController.deleteProduct);
+
+// 18. 🎬 FETCH WATCH PAGE DATA | @route: GET /api/products/watch/:id
 router.get("/:id", auth, productController.getProductById);
 
-// 18. 🛠️ ACTIVE SELLER DROPDOWN ACTIONS | @route: PUT & DELETE /api/products/action/:id
-router.delete("/:id", auth, productController.deleteProduct);
-router.put("/toggle-visibility/:id", auth, productController.toggleVisibility);
 // bell notification routes
 module.exports = router;
