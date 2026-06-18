@@ -3,12 +3,6 @@ const mongoose = require("mongoose");
 const SellerSchema = new mongoose.Schema({
   name: { type: String, required: true },
 
-  sellerId: {
-    type: String,
-    unique: true,
-    required: false,
-  },
-
   email: {
     type: String,
     required: true,
