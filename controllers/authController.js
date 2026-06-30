@@ -8,11 +8,16 @@ const { sendEmail, registerOtpTemplate, forgotPasswordTemplate, sellerForgotPass
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, acceptTerms, termsVersion = "v1.0" } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
         msg: "All fields are required!",
+      });
+    }
+    if (!acceptTerms) {
+      return res.status(400).json({
+        msg: "Please accept BR30 Kart Terms & Conditions.",
       });
     }
 
@@ -55,7 +60,11 @@ exports.register = async (req, res) => {
       existingUser.isVerified = false;
       existingUser.otp = otp;
       existingUser.otpExpires = Date.now() + 10 * 60 * 1000;
-
+      existingUser.termsAndConditions = {
+        isAccepted: true,
+        acceptedAt: new Date(),
+        version: termsVersion || "v1.0",
+      };
       user = await existingUser.save();
     } else {
       user = await User.create({
@@ -66,6 +75,11 @@ exports.register = async (req, res) => {
         isVerified: false,
         otp,
         otpExpires: Date.now() + 10 * 60 * 1000,
+        termsAndConditions: {
+          isAccepted: true,
+          acceptedAt: new Date(),
+          version: termsVersion || "v1.0",
+        },
       });
     }
 
@@ -524,7 +538,13 @@ exports.verifyOTP = async (req, res) => {
 
 exports.sellerRegister = async (req, res) => {
   try {
-    const { name, email, password, aadharNo, bankName, accountNo, ifscCode } = req.body;
+    const { name, email, password, aadharNo, bankName, accountNo, ifscCode, acceptTerms, termsVersion = "v1.0" } = req.body;
+
+    if (!acceptTerms) {
+      return res.status(400).json({
+        msg: "Please accept BR30 Kart Terms & Conditions.",
+      });
+    }
 
     const user = await User.findOne({ email });
     if (!user || !user.isVerified) {
@@ -558,6 +578,12 @@ exports.sellerRegister = async (req, res) => {
       accountNo: accountNo || "",
       ifscCode: ifscCode || "",
       bankDoc: req.files?.bankDoc?.[0]?.path || user.bankDetails?.bankDoc || "",
+    };
+
+    user.termsAndConditions = {
+      isAccepted: true,
+      acceptedAt: new Date(),
+      version: termsVersion,
     };
 
     user.otp = null;

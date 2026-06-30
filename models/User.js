@@ -103,8 +103,26 @@ const userSchema = new mongoose.Schema(
     otp: {
       type: String,
     },
+
     otpExpires: {
       type: Date,
+    },
+
+    termsAndConditions: {
+      isAccepted: {
+        type: Boolean,
+        default: false,
+      },
+
+      acceptedAt: {
+        type: Date,
+        default: null,
+      },
+
+      version: {
+        type: String,
+        default: "",
+      },
     },
   },
   { timestamps: true }
