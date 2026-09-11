@@ -409,10 +409,11 @@ exports.updatePayoutStatus = async (req, res) => {
 
     await sendEmail({
       to: result.sellerEmail,
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      // email: "support.br30trader@gmail.com",
+      // name: "BR30 Support Team",
+      // },
 
       subject: `💰 Payout Processed: ₹${Number(result.netPayout || 0).toLocaleString("en-IN")}`,
 
@@ -474,11 +475,11 @@ exports.sendPayoutEmail = async (data) => {
         name: "BR30 Kart",
         email: BREVO_EMAIL,
       },
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       to: [
         {
@@ -559,11 +560,11 @@ exports.toggleVerification = async (req, res) => {
     try {
       await sendEmail({
         to: user.email,
-
-        replyTo: {
-          email: "support.br30trader@gmail.com",
-          name: "BR30 Support Team",
-        },
+        replyTo: null,
+        // replyTo: {
+        //   email: "support.br30trader@gmail.com",
+        //   name: "BR30 Support Team",
+        // },
 
         subject,
         html,
@@ -598,11 +599,11 @@ exports.rejectSellerDocs = async (req, res) => {
 
     await sendEmail({
       to: email,
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       subject: "Verification Result ❌ - Documents Rejected",
 
@@ -759,11 +760,11 @@ exports.rejectSeller = async (req, res) => {
 
     await sendEmail({
       to: email,
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       subject: "❌ Action Required: Your BR30 Kart Seller Application Status",
 
@@ -795,11 +796,11 @@ exports.approveSeller = async (req, res) => {
 
     await sendEmail({
       to: seller.email,
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Seller Support",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       subject: "🎉 Congratulations! Your BR30 Kart Seller Account Has Been Approved",
 
@@ -867,11 +868,11 @@ exports.sendSellerAlert = async (req, res) => {
 
     await sendEmail({
       to: email,
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       subject: "⚠️ IMPORTANT: BR30 Admin Alert",
 
@@ -988,11 +989,11 @@ exports.sendSellerActionMail = async (req, res) => {
 
     await sendEmail({
       email: sellerEmail,
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       subject: `🚨 Admin Action: ${reason} (${courseTitle || "Update"})`,
 
@@ -1170,11 +1171,11 @@ exports.sendStudentAlert = async (req, res) => {
 
     await sendEmail({
       email: studentEmail,
-
-      replyTo: {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      },
+      replyTo: null,
+      // replyTo: {
+      //   email: "support.br30trader@gmail.com",
+      //   name: "BR30 Support Team",
+      // },
 
       subject: `🚨 Important Update: ${reason || "Admin Message"}`,
 

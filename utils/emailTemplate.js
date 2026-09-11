@@ -24,31 +24,32 @@ const sendEmail = async (options) => {
 
     console.log(`📧 Sending email to: ${targetEmail}`);
 
-    const brevoResponse = await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        sender: {
-          name: "BR30 Kart",
-          email: BREVO_EMAIL,
-        },
-
-        replyTo: {
-          email: "support.br30trader@gmail.com",
-          name: "BR30 Support Team",
-        },
-
-        to: [{ email: targetEmail.trim() }],
-        subject: options.subject,
-        htmlContent: emailHtmlContent,
+    const emailData = {
+      sender: {
+        name: "BR30 Kart",
+        email: BREVO_EMAIL,
       },
-      {
-        headers: {
-          accept: "application/json",
-          "api-key": BREVO_KEY,
-          "content-type": "application/json",
-        },
-      }
-    );
+
+      to: [{ email: targetEmail.trim() }],
+      subject: options.subject,
+      htmlContent: emailHtmlContent,
+    };
+
+    // Default Reply-To
+    if (options.replyTo !== null) {
+      emailData.replyTo = options.replyTo || {
+        email: "support.br30trader@gmail.com",
+        name: "BR30 Support Team",
+      };
+    }
+
+    const brevoResponse = await axios.post("https://api.brevo.com/v3/smtp/email", emailData, {
+      headers: {
+        accept: "application/json",
+        "api-key": BREVO_KEY,
+        "content-type": "application/json",
+      },
+    });
 
     console.log("✅ Email sent successfully via Brevo");
 
