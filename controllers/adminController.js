@@ -409,7 +409,6 @@ exports.updatePayoutStatus = async (req, res) => {
 
     await sendEmail({
       to: result.sellerEmail,
-      replyTo: null,
       // replyTo: {
       // email: "support.br30trader@gmail.com",
       // name: "BR30 Support Team",
@@ -475,7 +474,6 @@ exports.sendPayoutEmail = async (data) => {
         name: "BR30 Kart",
         email: BREVO_EMAIL,
       },
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",
@@ -560,7 +558,6 @@ exports.toggleVerification = async (req, res) => {
     try {
       await sendEmail({
         to: user.email,
-        replyTo: null,
         // replyTo: {
         //   email: "support.br30trader@gmail.com",
         //   name: "BR30 Support Team",
@@ -599,7 +596,6 @@ exports.rejectSellerDocs = async (req, res) => {
 
     await sendEmail({
       to: email,
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",
@@ -760,7 +756,6 @@ exports.rejectSeller = async (req, res) => {
 
     await sendEmail({
       to: email,
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",
@@ -796,7 +791,6 @@ exports.approveSeller = async (req, res) => {
 
     await sendEmail({
       to: seller.email,
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",
@@ -868,7 +862,6 @@ exports.sendSellerAlert = async (req, res) => {
 
     await sendEmail({
       to: email,
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",
@@ -989,7 +982,6 @@ exports.sendSellerActionMail = async (req, res) => {
 
     await sendEmail({
       email: sellerEmail,
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",
@@ -1171,7 +1163,6 @@ exports.sendStudentAlert = async (req, res) => {
 
     await sendEmail({
       email: studentEmail,
-      replyTo: null,
       // replyTo: {
       //   email: "support.br30trader@gmail.com",
       //   name: "BR30 Support Team",

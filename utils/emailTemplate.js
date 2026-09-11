@@ -35,14 +35,6 @@ const sendEmail = async (options) => {
       htmlContent: emailHtmlContent,
     };
 
-    // Default Reply-To
-    if (options.replyTo !== null) {
-      emailData.replyTo = options.replyTo || {
-        email: "support.br30trader@gmail.com",
-        name: "BR30 Support Team",
-      };
-    }
-
     const brevoResponse = await axios.post("https://api.brevo.com/v3/smtp/email", emailData, {
       headers: {
         accept: "application/json",

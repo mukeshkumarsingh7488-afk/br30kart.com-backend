@@ -124,7 +124,6 @@ router.post("/claim-certificate", auth, async (req, res) => {
 
       const emailResult = await sendEmail({
         to: user.email,
-        replyTo: null,
         // replyTo: {
         //   email: "support.br30trader@gmail.com",
         //   name: "BR30 Support Team",
