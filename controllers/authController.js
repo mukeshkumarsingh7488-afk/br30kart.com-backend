@@ -298,7 +298,7 @@ exports.forgotPassword = async (req, res) => {
           name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
-        replyTo: null,
+        //replyTo: null,
         // replyTo: {
         //   email: "support.br30trader@gmail.com",
         //   name: "BR30 Support Team",

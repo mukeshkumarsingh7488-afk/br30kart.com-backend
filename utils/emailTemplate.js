@@ -1,6 +1,6 @@
 const axios = require("axios");
 const nodemailer = require("nodemailer");
-/* ---------------- SEND EMAIL CORE (GMAIL SMTP) ---------------- */
+/* ---------------- SEND EMAIL CORE (GMAIL SMTP) --------------- */
 
 const sendEmail = async (options) => {
   try {
