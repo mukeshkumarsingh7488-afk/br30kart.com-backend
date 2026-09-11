@@ -92,10 +92,6 @@ exports.register = async (req, res) => {
           name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
-        // replyTo: {
-        //   email: "support.br30trader@gmail.com",
-        //   name: "BR30 Support Team",
-        // },
 
         to: [
           {
@@ -459,10 +455,6 @@ exports.sendOTP = async (req, res) => {
           name: "BR30 Kart",
           email: process.env.BREVO_EMAIL.trim(),
         },
-        // replyTo: {
-        //   email: "support.br30trader@gmail.com",
-        //   name: "BR30 Support Team",
-        // },
 
         to: [
           {
